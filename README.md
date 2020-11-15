@@ -1,4 +1,4 @@
-# SurgeryRoomSimulation
+# Surgery Room Simulation
 TIES481 Course assignment
 
 ## Simulation
