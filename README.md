@@ -3,6 +3,7 @@ TIES481 Course assignment
 
 ## Simulation
 
+Simulation 
 
 ## Usage
 
@@ -12,7 +13,7 @@ PARAMETER_NAME1: PARAMETER1_VALUE\
 PARAMETER_NAME2: PARAMETER2_VALUE\
 ....
 
-All posiible parameters can be found in the documentation.
+All possible parameters can be found in the documentation.
 
 
 ## Requirements
