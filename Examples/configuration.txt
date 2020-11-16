@@ -1,3 +1,4 @@
+log-level: INFO
 random-seed: 2
 number-of-recovery-places: 30
 severe-patient-portion: 0.3

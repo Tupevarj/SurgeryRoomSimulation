@@ -1,5 +1,3 @@
-
-
 class SimulationException(Exception):
     pass
 

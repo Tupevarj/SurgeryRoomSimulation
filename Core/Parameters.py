@@ -1,7 +1,15 @@
 import re
 import sys
 from Core.Exceptions import SimulationParameterException
-from Logging import LogLevel, LoggingBase
+from Logging.Logging import Logger, LogLevel
+
+
+def validate_enum(string, enum):
+
+    try:
+        return enum[string]
+    except:
+        return None
 
 
 def validate_integer(string, min = 0, max = sys.maxsize):
@@ -48,15 +56,14 @@ class SimulationParameter:
         return self._validator(string, *self._args)
 
     
-class SimulationParameters(LoggingBase):
+
+class SimulationParameters(object):
 
   
     def __init__(self, lines, supported_parameters):
         """
             Parses parameters from <lines>, where each line is format <PARAMATER_NAME>: <PARAMETER_VALUE>.
         """
-
-        self.LOGGER.log(LogLevel.INFO, "Start parsing parameters.")
 
         # Fill with defaults:
         self._parameters = {k:v.get_default_value() for k, v in supported_parameters.items()}
@@ -74,7 +81,7 @@ class SimulationParameters(LoggingBase):
 
             # Parse:
             try:
-                parsed = supported_parameters[parameter_fields[0]].validate(parameter_fields[1])
+                parsed = supported_parameters[parameter_fields[0]].validate(parameter_fields[1].strip())
             except:
                 raise SimulationParameterException("Parameter '" + parameter_fields[0] + "' has unvalid typed value at line " + str(i) + ".") 
             
@@ -83,7 +90,6 @@ class SimulationParameters(LoggingBase):
                 raise SimulationParameterException("Parameter '" + parameter_fields[0] + "' has non-valid value at line " + str(i) + ".")   # TODO: Print better explanation
 
             self._parameters[parameter_fields[0]] = parsed
-            self.LOGGER.log(LogLevel.INFO, "Parameter '" + parameter_fields[0] + "' set to: " + str(parsed))
         
 
 
