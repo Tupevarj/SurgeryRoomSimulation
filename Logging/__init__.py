@@ -56,3 +56,15 @@ class Logger:
 
     def log(self, level, message):
         self._instance.log(level, message)
+
+        
+
+class LoggingBase(object):
+    """
+        Base class for different modules.
+    """
+    LOGGER = Logger(LogLevel.INFO)
+
+    def __init__(self):
+        pass
+

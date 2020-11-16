@@ -1,8 +1,7 @@
 import re
 import sys
 from Core.Exceptions import SimulationParameterException
-from Core.Module import ModuleBase
-from Logging import LogLevel
+from Logging import LogLevel, LoggingBase
 
 
 def validate_integer(string, min = 0, max = sys.maxsize):
@@ -49,7 +48,7 @@ class SimulationParameter:
         return self._validator(string, *self._args)
 
     
-class SimulationParameters(ModuleBase):
+class SimulationParameters(LoggingBase):
 
   
     def __init__(self, lines, supported_parameters):

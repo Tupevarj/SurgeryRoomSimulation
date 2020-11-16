@@ -1,13 +1,22 @@
-from Core.SimulationBase import SimulationBase
-from Core.Parameters import SimulationParameter, validate_integer, validate_float
-from Logging import LogLevel
+from Core.Simulation import SimulationBase
+from Core.Modules import SimulationParameter, validate_integer, validate_float
+from Logging import LogLevel 
 import simpy
 import argparse
 import sys
 
 class Patient:
+    """
+        TODO: id, condition, etc..
+    """
     pass
 
+
+class PatientGenerator:
+    """
+        TODO: use parameters to generate..
+    """
+    pass
 
 
 class Simulation(SimulationBase):
@@ -27,7 +36,7 @@ class Simulation(SimulationBase):
 
         # Print custom error message if correct path is not provided:
         try:
-            conf_file = self._parse_arguments()
+            conf_file = self._parse_command_line_arguments()
         except:
             print("Please provide correct path to file containing simulation configuration by '--conf' command line option")
             sys.exit()
@@ -44,7 +53,7 @@ class Simulation(SimulationBase):
 
 
 
-    def _parse_arguments(self):
+    def _parse_command_line_arguments(self):
         """
             Parses command line arguments.
         """

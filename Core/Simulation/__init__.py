@@ -1,8 +1,7 @@
-from Core.Module import ModuleBase
-from Core.Parameters import SimulationParameters
+from Logging import Logger, LogLevel, LoggingBase
+from Core.Modules import SimulationParameters
 
-
-class SimulationBase(ModuleBase):
+class SimulationBase(LoggingBase):
 
     def __init__(self, supported_parameters):
 
