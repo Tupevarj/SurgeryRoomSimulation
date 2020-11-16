@@ -1,5 +1,5 @@
 from Simulators.SimulationBase import SimulationBase
-from Core.Parameters import SimulationParameter, validate_integer, validate_float, validate_enum
+from Core.Parameters import SimulationParameter, ParameterValidation as PV
 from Simulators.SurgerySimulation.Patients import PatientGenerator
 from Logging.Logging import Logger, LogLevel
 from Simulators.SurgerySimulation.Phases import *
@@ -15,10 +15,10 @@ class SurgerySimulator(SimulationBase):
 
     def __init__(self):
         
-        super().__init__({ "number-of-recovery-places":  SimulationParameter(10, validate_integer, 1, 300),
-                           "number-of-operation-places": SimulationParameter(10, validate_integer, 1, 100),
-                           "severe-patient-portion":     SimulationParameter(0.5, validate_float, 0, 1.0),
-                           "patient-interval":           SimulationParameter(1.0, validate_float, 0.0),
+        super().__init__({ "number-of-recovery-places":  SimulationParameter(10, PV.validate_integer, 1, 300),
+                           "number-of-operation-places": SimulationParameter(10, PV.validate_integer, 1, 100),
+                           "severe-patient-portion":     SimulationParameter(0.5, PV.validate_float, 0, 1.0),
+                           "patient-interval":           SimulationParameter(1.0, PV.validate_float, 0.0),
                          });
 
 

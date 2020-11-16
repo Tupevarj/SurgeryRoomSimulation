@@ -1,5 +1,5 @@
 from Logging.Logging import Logger, LogLevel
-from Core.Parameters import SimulationParameters, SimulationParameter, validate_enum, validate_integer
+from Core.Parameters import SimulationParameters, SimulationParameter, ParameterValidation as PV
 import simpy
 import random
 
@@ -11,9 +11,9 @@ class SimulationBase(object):
 
     """
     
-    COMMON_PARAMS = { "log-level":       SimulationParameter("INFO", validate_enum, LogLevel),
-                      "simulation-time": SimulationParameter(10, validate_integer, 0),
-                      "random-seed":     SimulationParameter(1, validate_integer, 0)
+    COMMON_PARAMS = { "log-level":       SimulationParameter("INFO", PV.validate_enum, LogLevel),
+                      "simulation-time": SimulationParameter(10, PV.validate_integer, 0),
+                      "random-seed":     SimulationParameter(1, PV.validate_integer, 0)
                      }
 
     def __init__(self, supported_parameters):

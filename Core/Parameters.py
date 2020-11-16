@@ -4,36 +4,41 @@ from Core.Exceptions import SimulationParameterException
 from Logging.Logging import Logger, LogLevel
 
 
-def validate_enum(string, enum):
+class ParameterValidation:
 
-    try:
-        return enum[string]
-    except:
+    @staticmethod
+    def validate_enum(string, enum):
+
+        try:
+            return enum[string]
+        except:
+            return None
+
+        
+    @staticmethod
+    def validate_integer(string, min = 0, max = sys.maxsize):
+
+        try:
+            value = int(string)
+            if value >= min and value <= max:
+                return value
+        except:
+            pass
+
         return None
 
+    
+    @staticmethod
+    def validate_float(string, min = sys.float_info.min, max = sys.float_info.max):
 
-def validate_integer(string, min = 0, max = sys.maxsize):
+        try:
+            value = float(string)
+            if value >= min and value <= max:
+                return value
+        except:
+            pass
 
-    try:
-        value = int(string)
-        if value >= min and value <= max:
-            return value
-    except:
-        pass
-
-    return None
-
-
-def validate_float(string, min = sys.float_info.min, max = sys.float_info.max):
-
-    try:
-        value = float(string)
-        if value >= min and value <= max:
-            return value
-    except:
-        pass
-
-    return None
+        return None
 
 
 
