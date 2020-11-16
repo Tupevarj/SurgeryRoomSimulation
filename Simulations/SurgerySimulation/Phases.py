@@ -48,11 +48,9 @@ class PreparationPlaces(SimulationPhase):
 
     
     def execute_phase(self, env, patient):
-
-        # Acquire preparation place of patient:
-        Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has arrived to preparation.")
+        
+        patient.update_status(PatientStatus.IN_PREPARATION, env.now)
         yield env.timeout(1)
-        Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has been prepared.")
         patient.update_status(PatientStatus.PREPARED, env.now)
 
 
@@ -66,9 +64,8 @@ class OperationPlaces(SimulationPhase):
     
 
     def execute_phase(self, env, patient):
-        Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has arrived to operation.")
+        patient.update_status(PatientStatus.IN_OPERATION, env.now)
         yield env.timeout(2)
-        Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has been operated.")
         patient.update_status(PatientStatus.OPERATED, env.now)
 
 
@@ -82,10 +79,8 @@ class RecoveryPlaces(SimulationPhase):
 
     
     def execute_phase(self, env, patient):
-        Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has arrived to recovery.")
+        patient.update_status(PatientStatus.IN_RECOVERY, env.now)
         yield env.timeout(2)
-        Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has recovered.")
         patient.update_status(PatientStatus.RECOVERED, env.now)
 
         # TODO: Statistics here
-

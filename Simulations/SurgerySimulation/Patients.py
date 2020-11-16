@@ -3,10 +3,13 @@ from enum import Enum
 import random
 
 class PatientStatus(Enum):
-    WAITING   = 0,
-    PREPARED  = 1,
-    OPERATED  = 2,
-    RECOVERED = 4
+    WAITING        = 0,
+    IN_PREPARATION = 1,
+    PREPARED       = 2,
+    IN_OPERATION   = 3,
+    OPERATED       = 4,
+    IN_RECOVERY    = 5,
+    RECOVERED      = 6
 
 
 class PatientStatistics:
@@ -25,6 +28,7 @@ class PatientRecord:
 
     def update_status(self, status, time_stamp):
         self.time_stamps[status] = time_stamp
+        Logger.log(LogLevel.DEBUG, "Patient (id: " + str(self.id) + ") is " + str(status).split(".")[1].lower().replace("_", " ") + ".")
 
 
 
