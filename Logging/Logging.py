@@ -8,6 +8,7 @@ class LogLevel(IntEnum):
         Supported log level. For now, maps with standard logging module 
         levels for easy conversion between these two.
     """
+    DEBUG    = 10
     INFO     = 20
     WARNING  = 30
     ERROR    = 40
@@ -44,7 +45,8 @@ class Logger:
                 # TODO: Add support to log into file
                 pass
 
-            self._look_up_methods = { LogLevel.INFO:     self._log.info,
+            self._look_up_methods = { LogLevel.DEBUG:    self._log.debug,
+                                      LogLevel.INFO:     self._log.info,
                                       LogLevel.WARNING:  self._log.warning,
                                       LogLevel.ERROR:    self._log.error,
                                       LogLevel.CRITICAL: self._log.critical }

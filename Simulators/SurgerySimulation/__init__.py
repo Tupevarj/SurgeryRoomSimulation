@@ -1,65 +1,25 @@
-from Simulators.SimulatorBase import SimulatorBase
+from Simulators.SimulationBase import SimulationBase
 from Core.Parameters import SimulationParameter, validate_integer, validate_float, validate_enum
+from Simulators.SurgerySimulation.Patients import PatientGenerator
 from Logging.Logging import Logger, LogLevel
-from enum import Enum
+from Simulators.SurgerySimulation.Phases import *
 import simpy
 import argparse
 import sys
 
-class PatientStatus(Enum):
-    WAITING = 0,
-    PREPARED = 1,
-    OPERATED = 2,
-    RECOVERED = 4
 
-class PatientRecord:
-
-    def __init__(self):
-        self.status = PatientStatus.WAITING
-        # Time of arrival
-
-class Patient:
-    """
-        TODO: id, toa, condition, etc..
-    """
-    pass
-
-
-class PatientGenerator:
-    """
-        TODO: use parameters to generate..
-    """
-    def __init__(self):
-        pass
-
-
-
-    def _generate_new_patient(self):
-        pass
-
-
-class PreparationPlaces: # Facility:
-    pass
-
-
-class OperationPlaces: # Facility:
-    pass
-
-
-
-class SurgerySimulator(SimulatorBase):
+class SurgerySimulator(SimulationBase):
     """
         Simulation scenario for TIES481 course surgery case.
     """
 
     def __init__(self):
         
-        # TODO: Parse supported parameters from the file
         super().__init__({ "number-of-recovery-places":  SimulationParameter(10, validate_integer, 1, 300),
                            "number-of-operation-places": SimulationParameter(10, validate_integer, 1, 100),
-                           "severe-patient-portion":     SimulationParameter(0.5, validate_float, 0, 1.0)
+                           "severe-patient-portion":     SimulationParameter(0.5, validate_float, 0, 1.0),
+                           "patient-interval":           SimulationParameter(1.0, validate_float, 0.0),
                          });
-
 
 
         # Print custom error message if correct path is not provided:
@@ -77,9 +37,21 @@ class SurgerySimulator(SimulatorBase):
 
         Logger.log(LogLevel.INFO, "Start creating simulation with configuration from file: " + str(sys.argv[-1]))
 
-        # TODO: Initialize simulator with parameters:
+        # TODO: Created instances with provided parameters:
+        recovery    = RecoveryPlaces(self.create_resource(self.parameters["number-of-recovery-places"]), None)
+        operation   = OperationPlaces(self.create_resource(self.parameters["number-of-operation-places"]), recovery)
+        preparation = PreparationPlaces(operation)
 
+        # Create queue:
+        #self.operationsss = simpy.Resource(env, capacity=2)
 
+        patient_generator = PatientGenerator(self.parameters["patient-interval"], self.parameters["severe-patient-portion"])
+        
+        #self.register_process(patient_generator.run, preparation.enter_phase)
+        #self.add_process(preparation.run)
+
+        # Start simulation (with entry point patient generator):
+        self.run(patient_generator.run, preparation.enter_phase)
 
 
     def _parse_command_line_arguments(self):

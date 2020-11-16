@@ -20,4 +20,5 @@ Supported parameters can be printed by calling simulator with command line argum
 
 
 ## Requirements
+Python >= 3.5
 SimPy
