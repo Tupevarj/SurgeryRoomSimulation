@@ -2,7 +2,7 @@ from Simulations.SimulationBase import SimulationBase
 from Simulations.SurgerySimulation.Patients import PatientGenerator
 from Simulations.SurgerySimulation.Phases import RecoveryPlaces, OperationPlaces, PreparationPlaces
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
-from Statistics.Statistics import StatisticsCollection, ScalarStatistic
+from Statistics.Statistics import StatisticsCollection, ScalarStatistic, StatisticsOutConsole
 from Logging.Logging import Logger, LogLevel
 import simpy
 import argparse
@@ -16,16 +16,16 @@ class SurgerySimulator(SimulationBase):
 
     def __init__(self):
         
-        super().__init__({ "number-of-preparation-places":  SimulationParameter(10, PV.validate_integer, 1, 300),
-                           "number-of-operation-places":    SimulationParameter(10, PV.validate_integer, 1, 100),
-                           "severe-patient-portion":        SimulationParameter(0.5, PV.validate_float, 0, 1.0),
-                           "patient-interval":              SimulationParameter(1.0, PV.validate_float, 0.0),
-                           "preparation-time-severe":       SimulationParameter(1.0, PV.validate_float, 0.0),
-                           "preparation-time-mild":         SimulationParameter(0.5, PV.validate_float, 0.0),
-                           "operation-time-severe":         SimulationParameter(5.5, PV.validate_float, 0.0),
-                           "operation-time-mild":           SimulationParameter(2.5, PV.validate_float, 0.0),
-                           "recovery-time-severe":          SimulationParameter(48.0, PV.validate_float, 0.0),
-                           "recovery-time-mild":            SimulationParameter(12.0, PV.validate_float, 0.0),
+        super().__init__({ "number-of-preparation-places":  SimulationParameter("Number of preparation places [1 - 100].", 10, PV.validate_integer, 1, 100),
+                           "number-of-operation-places":    SimulationParameter("Number of operation places [1 - 100].", 10, PV.validate_integer, 1, 100),
+                           "severe-patient-portion":        SimulationParameter("Portion of severe patients (0 => 0%, 1.0 => 100%) [0 - 1.0].", 0.5, PV.validate_float, 0, 1.0),
+                           "patient-interval":              SimulationParameter("Patient arrival interval in hours.", 1.0, PV.validate_float, 0.0),
+                           "preparation-time-severe":       SimulationParameter("Time in hours that patient preparation takes for severe patients.", 1.0, PV.validate_float, 0.0),
+                           "preparation-time-mild":         SimulationParameter("Time in hours that patient preparation takes for mild patients.", 0.5, PV.validate_float, 0.0),
+                           "operation-time-severe":         SimulationParameter("Time in hours that operation takes for severe patients.", 5.5, PV.validate_float, 0.0),
+                           "operation-time-mild":           SimulationParameter("Time in hours that operation takes for mild patients.", 2.5, PV.validate_float, 0.0),
+                           "recovery-time-severe":          SimulationParameter("Time in hours that recovery takes for severe patients.", 48.0, PV.validate_float, 0.0),
+                           "recovery-time-mild":            SimulationParameter("Time in hours that recovery takes for mild patients.", 12.0, PV.validate_float, 0.0),
                          });
 
 
@@ -54,6 +54,7 @@ class SurgerySimulator(SimulationBase):
 
         StatisticsCollection.add_statistic(ScalarStatistic(), "test")
         StatisticsCollection.update_statistic("test")
+        StatisticsCollection.output_statistic("test", StatisticsOutConsole())
 
         # Start simulation (with entry point at patient generator):
         self.run(patient_generator.run, preparation.enter_phase)

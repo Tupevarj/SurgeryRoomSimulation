@@ -1,4 +1,5 @@
 from Core.Exceptions import SimulationException
+from abc import ABCMeta, abstractmethod
 
 class ScalarStatistic:
 
@@ -7,6 +8,9 @@ class ScalarStatistic:
 
     def update(self):
         self._counter += 1
+
+    def get_value(self):
+        return self._counter
 
 
 class TimeStampStatistic:
@@ -18,9 +22,26 @@ class TimeStampStatistic:
         self._values.append((id, timestamp))
 
 
-class StatisticsOut:
-    # One for file, one for stdout
-    pass
+class StatisticsOut(metaclass=ABCMeta):
+
+    def __init__(self):
+        pass
+    
+    @abstractmethod
+    def output_statistic(self, statistic, *args):
+        pass
+
+    
+
+class StatisticsOutConsole(StatisticsOut):
+
+    def __init__(self):
+        pass
+    
+    def output_statistic(self, statistic, *args):
+        
+        if isinstance(statistic, ScalarStatistic):
+            print(statistic.get_value())
 
         
 class StatisticsCollection:
@@ -49,6 +70,11 @@ class StatisticsCollection:
                 raise SimulationException("Statistics '" + str(name) + "' does not exist.")
             self._statistics[name].update(*args)
 
+        def output_statistic(self, name, output):
+            if name not in self._statistics:
+                raise SimulationException("Statistics '" + str(name) + "' does not exist.")
+            output.output_statistic(self._statistics[name])
+
 
     def __init__(self):
         if StatisticsCollection._instance is None:
@@ -64,4 +90,4 @@ class StatisticsCollection:
 
     @staticmethod
     def output_statistic(name, output):
-        pass
+        StatisticsCollection._instance.output_statistic(name, output)

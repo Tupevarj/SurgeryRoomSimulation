@@ -12,9 +12,9 @@ class SimulationBase(object):
 
     """
     
-    COMMON_PARAMS = { "log-level":       SimulationParameter("INFO", PV.validate_enum, LogLevel),
-                      "simulation-time": SimulationParameter(10, PV.validate_integer, 0),
-                      "random-seed":     SimulationParameter(1, PV.validate_integer, 0)
+    COMMON_PARAMS = { "log-level":       SimulationParameter("Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL", "INFO", PV.validate_enum, LogLevel),
+                      "simulation-time": SimulationParameter("Simulation time in hours.", 10, PV.validate_integer, 0),
+                      "random-seed":     SimulationParameter("Seed for random number generator.", 1, PV.validate_integer, 0)
                      }
 
     def __init__(self, supported_parameters):

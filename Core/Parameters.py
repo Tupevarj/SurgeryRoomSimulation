@@ -47,8 +47,9 @@ class SimulationParameter:
     """
         Class for single parameter used in simulator. Contains default value, validator and additional args for validator.
     """
-    def __init__(self, default, validator, *args):
+    def __init__(self, description, default, validator, *args):
         self._validator = validator
+        self.description = description
         self._default_value = default
         self._args = args
 
