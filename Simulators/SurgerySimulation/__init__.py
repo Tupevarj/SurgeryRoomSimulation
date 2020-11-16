@@ -1,9 +1,22 @@
 from Simulators.SimulatorBase import SimulatorBase
 from Core.Parameters import SimulationParameter, validate_integer, validate_float, validate_enum
-from Logging.Logging import Logger, LogLevel 
+from Logging.Logging import Logger, LogLevel
+from enum import Enum
 import simpy
 import argparse
 import sys
+
+class PatientStatus(Enum):
+    WAITING = 0,
+    PREPARED = 1,
+    OPERATED = 2,
+    RECOVERED = 4
+
+class PatientRecord:
+
+    def __init__(self):
+        self.status = PatientStatus.WAITING
+        # Time of arrival
 
 class Patient:
     """
@@ -16,7 +29,22 @@ class PatientGenerator:
     """
         TODO: use parameters to generate..
     """
+    def __init__(self):
+        pass
+
+
+
+    def _generate_new_patient(self):
+        pass
+
+
+class PreparationPlaces: # Facility:
     pass
+
+
+class OperationPlaces: # Facility:
+    pass
+
 
 
 class SurgerySimulator(SimulatorBase):
@@ -26,10 +54,8 @@ class SurgerySimulator(SimulatorBase):
 
     def __init__(self):
         
-        # TODO: Split into common and simulation specific parameters
-        super().__init__({ "log-level":                  SimulationParameter("INFO", validate_enum, LogLevel),
-                           "random-seed":                SimulationParameter(1, validate_integer, 0),
-                           "number-of-recovery-places":  SimulationParameter(10, validate_integer, 1, 300),
+        # TODO: Parse supported parameters from the file
+        super().__init__({ "number-of-recovery-places":  SimulationParameter(10, validate_integer, 1, 300),
                            "number-of-operation-places": SimulationParameter(10, validate_integer, 1, 100),
                            "severe-patient-portion":     SimulationParameter(0.5, validate_float, 0, 1.0)
                          });
