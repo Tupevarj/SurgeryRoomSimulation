@@ -26,17 +26,32 @@ class SimulationPhase(metaclass=ABCMeta):
             - executing current phase
             - moving to next phase
         """
+
         # If limited resources, needs to wait until resources are available:
         if self.resources is not None:
             with self.resources.request() as req:
                 yield req
                 yield env.process(self.execute_phase(env, patient))
+                # Need to reserve resources until next phase is free:
+                yield env.process(self._enter_next_phase(env, patient))
+
         else:
-            yield env.process(self.execute_phase(env, patient))
-             
+            yield env.process(self._enter_next_phase(env, patient))
+           
+
+    def _enter_next_phase(self, env, patient):
+        """
+            Handles movement to next phase.
+        """
         if self.next_phase is not None:
-            yield env.process(self.next_phase.enter_phase(env, patient))
-        
+            if self.next_phase.resources is not None:
+                with self.next_phase.resources.request() as req2:
+                    yield req2
+                    if self.next_phase is not None:
+                        env.process(self.next_phase.enter_phase(env, patient))
+            else:
+                yield env.process(self.next_phase.enter_phase(env, patient))
+
 
 class PreparationUnits(SimulationPhase):
     """

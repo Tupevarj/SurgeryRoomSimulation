@@ -81,7 +81,6 @@ class PatientGenerator:
                   and calculate next patients condition to match requested portion.
         """
 
-        patient = self._patients.add_patient(random.uniform(0.0, 1.0) <= self._severe_threshold, env.now) #(random.uniform(0.0, 1.0) <= self._severe_threshold, env.now)
-        Logger.log(LogLevel.DEBUG, "Created new patient with id: " + str(patient.id) + 
-                   " and " + ("severe" if patient.is_severe else "mild") + " condition.")
+        patient = self._patients.add_patient(random.uniform(0.0, 1.0) <= self._severe_threshold, env.now)
+        Logger.log(LogLevel.DEBUG, "Created new patient with id: " + str(patient.id) + " and " + ("severe" if patient.is_severe else "mild") + " condition.")
         return patient
