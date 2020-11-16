@@ -17,6 +17,20 @@ def validate_integer(string, min = 0, max = sys.maxsize):
     return None
 
 
+def validate_float(string, min = sys.float_info.min, max = sys.float_info.max):
+
+    try:
+        value = float(string)
+        if value >= min and value <= max:
+            return value
+    except:
+        pass
+
+    return None
+
+
+
+
 class SimulationParameter:
     """
         Class for single parameter used in simulator. Contains default value, validator and additional args for validator.
@@ -34,15 +48,11 @@ class SimulationParameter:
     def validate(self, string):
         return self._validator(string, *self._args)
 
-
+    
 class SimulationParameters(ModuleBase):
 
-    SIMULATION_PARAMETERS = { "random-seed":                SimulationParameter(1, validate_integer),
-                              "number-of-recovery-places":  SimulationParameter(10, validate_integer, 1, 300),
-                              "number-of-operation-places": SimulationParameter(10, validate_integer, 1, 100)}
-
-
-    def __init__(self, lines):
+  
+    def __init__(self, lines, supported_parameters):
         """
             Parses parameters from <lines>, where each line is format <PARAMATER_NAME>: <PARAMETER_VALUE>.
         """
@@ -50,7 +60,7 @@ class SimulationParameters(ModuleBase):
         self.LOGGER.log(LogLevel.INFO, "Start parsing parameters.")
 
         # Fill with defaults:
-        self._parameters = self._get_defaults()
+        self._parameters = {k:v.get_default_value() for k, v in supported_parameters.items()}
 
         # Parse each line from lines:
         for i in range(len(lines)):
@@ -60,12 +70,12 @@ class SimulationParameters(ModuleBase):
             if len(parameter_fields) < 2:
                 raise SimulationParameterException("Wrong syntax at line " + str(i) + ".")
 
-            if not parameter_fields[0] in self.SIMULATION_PARAMETERS:
+            if not parameter_fields[0] in supported_parameters:
                 raise SimulationParameterException("Unknown parameter '" + parameter_fields[0] + "' at line " + str(i) + ".")
 
             # Parse:
             try:
-                parsed = self.SIMULATION_PARAMETERS[parameter_fields[0]].validate(parameter_fields[1])
+                parsed = supported_parameters[parameter_fields[0]].validate(parameter_fields[1])
             except:
                 raise SimulationParameterException("Parameter '" + parameter_fields[0] + "' has unvalid typed value at line " + str(i) + ".") 
             
@@ -90,11 +100,4 @@ class SimulationParameters(ModuleBase):
             Splits line according to syntax: <KEY>: <VALUE>
         """
         return re.split(':\s+', line)
-
-
-    def _get_defaults(self):
-        """
-            Returns default values for each supported parameter.
-        """
-        return {k:v.get_default_value() for k, v in self.SIMULATION_PARAMETERS.items()}
 
