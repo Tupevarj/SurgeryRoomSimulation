@@ -1,8 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from Logging.Logging import Logger, LogLevel
-from Simulations.SurgerySimulation.Patients import Patient, PatientStatus
+from Simulations.SurgerySimulation.Patients import PatientRecord, PatientStatus
 
-# Scheduler
 class SimulationPhase(metaclass=ABCMeta):
     """
         Simple base class for simulation phases.
@@ -54,7 +53,7 @@ class PreparationPlaces(SimulationPhase):
         Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has arrived to preparation.")
         yield env.timeout(1)
         Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has been prepared.")
-        patient.record.status = PatientStatus.PREPARED
+        patient.update_status(PatientStatus.PREPARED, env.now)
 
 
 class OperationPlaces(SimulationPhase):
@@ -70,7 +69,7 @@ class OperationPlaces(SimulationPhase):
         Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has arrived to operation.")
         yield env.timeout(2)
         Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has been operated.")
-        patient.record.status = PatientStatus.OPERATED
+        patient.update_status(PatientStatus.OPERATED, env.now)
 
 
 class RecoveryPlaces(SimulationPhase):
@@ -86,7 +85,7 @@ class RecoveryPlaces(SimulationPhase):
         Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has arrived to recovery.")
         yield env.timeout(2)
         Logger.log(LogLevel.DEBUG, "Patient with id: " + str(patient.id) + " has recovered.")
-        patient.record.status = PatientStatus.RECOVERED
+        patient.update_status(PatientStatus.RECOVERED, env.now)
 
         # TODO: Statistics here
 
