@@ -9,7 +9,8 @@ def main():
         print("Critical error occured, see above, exiting simulation..")
 
 """
-    TODO: Simulator multi dispatcher...
+    TODO: Add statistics.
+    TODO: Add simulator multi dispatcher (not funny to manyally change configuration file for each simulation).
 """
 
 if __name__ == '__main__':

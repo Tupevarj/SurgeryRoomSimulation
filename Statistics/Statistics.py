@@ -3,14 +3,18 @@ from abc import ABCMeta, abstractmethod
 
 class ScalarStatistic:
 
-    def __init__(self):
+    def __init__(self, description):
         self._counter = 0
+        self._description = description
 
     def update(self):
         self._counter += 1
 
     def get_value(self):
         return self._counter
+    
+    def get_description(self):
+        return self._description
 
 
 class TimeStampStatistic:
@@ -41,7 +45,7 @@ class StatisticsOutConsole(StatisticsOut):
     def output_statistic(self, statistic, *args):
         
         if isinstance(statistic, ScalarStatistic):
-            print(statistic.get_value())
+            print(statistic.get_description(), ": ", statistic.get_value())
 
         
 class StatisticsCollection:
