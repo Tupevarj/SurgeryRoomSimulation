@@ -2,5 +2,5 @@ log-level: DEBUG
 random-seed: 2
 simulation-time: 10
 number-of-operation-places: 1
-number-of-recovery-places: 1
+number-of-preparation-places: 1
 severe-patient-portion: 0.3

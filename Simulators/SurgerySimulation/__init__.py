@@ -2,7 +2,7 @@ from Simulators.SimulationBase import SimulationBase
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
 from Simulators.SurgerySimulation.Patients import PatientGenerator
 from Logging.Logging import Logger, LogLevel
-from Simulators.SurgerySimulation.Phases import *
+from Simulators.SurgerySimulation.Phases import RecoveryPlaces, OperationPlaces, PreparationPlaces
 import simpy
 import argparse
 import sys
@@ -15,10 +15,10 @@ class SurgerySimulator(SimulationBase):
 
     def __init__(self):
         
-        super().__init__({ "number-of-recovery-places":  SimulationParameter(10, PV.validate_integer, 1, 300),
-                           "number-of-operation-places": SimulationParameter(10, PV.validate_integer, 1, 100),
-                           "severe-patient-portion":     SimulationParameter(0.5, PV.validate_float, 0, 1.0),
-                           "patient-interval":           SimulationParameter(1.0, PV.validate_float, 0.0),
+        super().__init__({ "number-of-preparation-places":  SimulationParameter(10, PV.validate_integer, 1, 300),
+                           "number-of-operation-places":    SimulationParameter(10, PV.validate_integer, 1, 100),
+                           "severe-patient-portion":        SimulationParameter(0.5, PV.validate_float, 0, 1.0),
+                           "patient-interval":              SimulationParameter(1.0, PV.validate_float, 0.0),
                          });
 
 
@@ -37,20 +37,15 @@ class SurgerySimulator(SimulationBase):
 
         Logger.log(LogLevel.INFO, "Start creating simulation with configuration from file: " + str(sys.argv[-1]))
 
-        # TODO: Created instances with provided parameters:
-        recovery    = RecoveryPlaces(self.create_resource(self.parameters["number-of-recovery-places"]), None)
+        # Created instances with provided parameters:
+        recovery    = RecoveryPlaces(None)
         operation   = OperationPlaces(self.create_resource(self.parameters["number-of-operation-places"]), recovery)
-        preparation = PreparationPlaces(operation)
+        preparation = PreparationPlaces(self.create_resource(self.parameters["number-of-preparation-places"]), operation)
 
-        # Create queue:
-        #self.operationsss = simpy.Resource(env, capacity=2)
-
+        # Create patient generator:
         patient_generator = PatientGenerator(self.parameters["patient-interval"], self.parameters["severe-patient-portion"])
-        
-        #self.register_process(patient_generator.run, preparation.enter_phase)
-        #self.add_process(preparation.run)
 
-        # Start simulation (with entry point patient generator):
+        # Start simulation (with entry point at patient generator):
         self.run(patient_generator.run, preparation.enter_phase)
 
 
