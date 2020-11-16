@@ -1,6 +1,8 @@
 import re
 import sys
 from Core.Exceptions import SimulationParameterException
+from Core.Module import ModuleBase
+from Logging import LogLevel
 
 
 def validate_integer(string, min = 0, max = sys.maxsize):
@@ -33,7 +35,7 @@ class SimulationParameter:
         return self._validator(string, *self._args)
 
 
-class SimulationParameters:
+class SimulationParameters(ModuleBase):
 
     SIMULATION_PARAMETERS = { "random-seed":                SimulationParameter(1, validate_integer),
                               "number-of-recovery-places":  SimulationParameter(10, validate_integer, 1, 300),
@@ -44,11 +46,11 @@ class SimulationParameters:
         """
             Parses parameters from <lines>, where each line is format <PARAMATER_NAME>: <PARAMETER_VALUE>.
         """
-        # Fill with defaults
-        #self._parameters = GET_DEFAULTS
-        self._parameters = self._get_defaults()
 
-        print("VALUES: ", self._parameters)
+        self.LOGGER.log(LogLevel.INFO, "Start parsing parameters.")
+
+        # Fill with defaults:
+        self._parameters = self._get_defaults()
 
         # Parse each line from lines:
         for i in range(len(lines)):
@@ -72,7 +74,9 @@ class SimulationParameters:
                 raise SimulationParameterException("Parameter '" + parameter_fields[0] + "' has non-valid value at line " + str(i) + ".")   # TODO: Print better explanation
 
             self._parameters[parameter_fields[0]] = parsed
-            
+            self.LOGGER.log(LogLevel.INFO, "Parameter '" + parameter_fields[0] + "' set to: " + str(parsed))
+        
+
 
     def __getitem__(self, p):
         """

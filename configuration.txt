@@ -1,1 +1,2 @@
+random-seed: 2
 number-of-recovery-places: 244
