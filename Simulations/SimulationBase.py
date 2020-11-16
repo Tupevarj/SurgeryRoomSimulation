@@ -1,5 +1,6 @@
 from Logging.Logging import Logger, LogLevel
 from Core.Parameters import SimulationParameters, SimulationParameter, ParameterValidation as PV
+from Statistics.Statistics import StatisticsCollection
 import simpy
 import random
 
@@ -35,6 +36,10 @@ class SimulationBase(object):
         Logger.log(LogLevel.INFO, "Starting simulation with following parameters:\n" + 
                    ("\n").join([p + ": " + str(self.parameters[p]) for p in self.supported_parameters]))
 
+        # Initialize statistics:
+        StatisticsCollection()
+
+        # Initialize RNG:
         random.seed(self.parameters["random-seed"])
 
 

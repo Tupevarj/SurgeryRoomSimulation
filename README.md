@@ -16,9 +16,11 @@ PARAMETER_NAME1: PARAMETER1_VALUE\
 PARAMETER_NAME2: PARAMETER2_VALUE\
 ....
 
-Supported parameters can be printed by calling simulator with command line argument --params. Example of configuration file is included in the examples folder.
-
-
+Supported parameters can be printed by calling simulator with command line argument --params **(TODO)**. Example configuration file is included in the **Examples** folder.
+Example usage:\
+```
+python main.py --conf Examples\configuration.txt
+```
 ## Requirements
 Python >= 3.5
 SimPy

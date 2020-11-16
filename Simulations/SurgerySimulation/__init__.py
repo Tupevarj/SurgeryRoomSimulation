@@ -2,6 +2,7 @@ from Simulations.SimulationBase import SimulationBase
 from Simulations.SurgerySimulation.Patients import PatientGenerator
 from Simulations.SurgerySimulation.Phases import RecoveryPlaces, OperationPlaces, PreparationPlaces
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
+from Statistics.Statistics import StatisticsCollection, ScalarStatistic
 from Logging.Logging import Logger, LogLevel
 import simpy
 import argparse
@@ -19,6 +20,12 @@ class SurgerySimulator(SimulationBase):
                            "number-of-operation-places":    SimulationParameter(10, PV.validate_integer, 1, 100),
                            "severe-patient-portion":        SimulationParameter(0.5, PV.validate_float, 0, 1.0),
                            "patient-interval":              SimulationParameter(1.0, PV.validate_float, 0.0),
+                           "preparation-time-severe":       SimulationParameter(1.0, PV.validate_float, 0.0),
+                           "preparation-time-mild":         SimulationParameter(0.5, PV.validate_float, 0.0),
+                           "operation-time-severe":         SimulationParameter(5.5, PV.validate_float, 0.0),
+                           "operation-time-mild":           SimulationParameter(2.5, PV.validate_float, 0.0),
+                           "recovery-time-severe":          SimulationParameter(48.0, PV.validate_float, 0.0),
+                           "recovery-time-mild":            SimulationParameter(12.0, PV.validate_float, 0.0),
                          });
 
 
@@ -35,7 +42,7 @@ class SurgerySimulator(SimulationBase):
         # TODO: close file in case of exception
         conf_file.conf.close()
 
-        Logger.log(LogLevel.INFO, "Start creating simulation with configuration from file: " + str(sys.argv[-1]))
+        Logger.log(LogLevel.INFO, "Prepared simulation with configuration from file: " + str(sys.argv[-1]))
 
         # Created instances with provided parameters:
         recovery    = RecoveryPlaces(None)
@@ -44,6 +51,9 @@ class SurgerySimulator(SimulationBase):
 
         # Create patient generator:
         patient_generator = PatientGenerator(self.parameters["patient-interval"], self.parameters["severe-patient-portion"])
+
+        StatisticsCollection.add_statistic(ScalarStatistic(), "test")
+        StatisticsCollection.update_statistic("test")
 
         # Start simulation (with entry point at patient generator):
         self.run(patient_generator.run, preparation.enter_phase)

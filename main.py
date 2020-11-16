@@ -1,10 +1,15 @@
 from Simulations.SurgerySimulation import SurgerySimulator
+from Core.Exceptions import SimulationException
 
 def main():
-    simulation = SurgerySimulator()
+    try:
+        simulation = SurgerySimulator()
+    except SimulationException as e:
+        print(e)
+        print("Critical error occured, see above, exiting simulation..")
 
 """
-    TODO: Simulator dispatcher, multiprocessing.
+    TODO: Simulator multi dispatcher...
 """
 
 if __name__ == '__main__':
