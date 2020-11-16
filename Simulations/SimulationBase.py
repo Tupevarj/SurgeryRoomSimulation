@@ -12,7 +12,7 @@ class SimulationBase(object):
 
     """
     
-    COMMON_PARAMS = { "log-level":       SimulationParameter("Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL", "INFO", PV.validate_enum, LogLevel),
+    COMMON_PARAMS = { "log-level":       SimulationParameter("Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL.", "INFO", PV.validate_enum, LogLevel),
                       "simulation-time": SimulationParameter("Simulation time in hours.", 10, PV.validate_integer, 0),
                       "random-seed":     SimulationParameter("Seed for random number generator.", 1, PV.validate_integer, 0)
                      }
@@ -57,4 +57,6 @@ class SimulationBase(object):
 
 
     def print_supported_parameters(self):
-        pass # TODO: For command line help option
+        # TODO: Pretty printing.
+        for param in self.supported_parameters.items():
+            print(param[0] +  ": " + param[1].get_description() + " Defaults to: " + str(param[1].get_default_value()) + ".")

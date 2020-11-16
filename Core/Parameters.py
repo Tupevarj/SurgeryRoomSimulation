@@ -49,7 +49,7 @@ class SimulationParameter:
     """
     def __init__(self, description, default, validator, *args):
         self._validator = validator
-        self.description = description
+        self._description = description
         self._default_value = default
         self._args = args
 
@@ -57,6 +57,8 @@ class SimulationParameter:
     def get_default_value(self):
         return self._default_value
 
+    def get_description(self):
+        return self._description
 
     def validate(self, string):
         return self._validator(string, *self._args)

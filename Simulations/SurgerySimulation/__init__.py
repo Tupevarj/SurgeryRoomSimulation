@@ -31,16 +31,19 @@ class SurgerySimulator(SimulationBase):
 
         # Print custom error message if correct path is not provided:
         try:
-            conf_file = self._parse_command_line_arguments()
+            command_line_args = self._parse_command_line_arguments()
         except:
             print("Please provide correct path to file containing simulation configuration by '--conf' command line option")
             sys.exit()
 
+        if command_line_args.params:
+            self.print_supported_parameters()
+            return
         
         # Parse arguments for simulation:
-        self.create(conf_file.conf.readlines())
+        self.create(command_line_args.conf.readlines())
         # TODO: close file in case of exception
-        conf_file.conf.close()
+        command_line_args.conf.close()
 
         Logger.log(LogLevel.INFO, "Prepared simulation with configuration from file: " + str(sys.argv[-1]))
 
@@ -69,6 +72,8 @@ class SurgerySimulator(SimulationBase):
                             type=argparse.FileType('r'), 
                             default=sys.stdin,
                             help='File containing parameters used in simulator.')
+        parser.add_argument('--params', 
+                            help='Print supported parameters.', action='store_true')
         return parser.parse_args()
 
 
