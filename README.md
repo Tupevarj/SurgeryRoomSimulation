@@ -4,9 +4,9 @@ TIES481 Course assignment.
 ## Simulation
 
 Simulates surgery facility with continuous flow of patients. In simulation three steps are considered:
-1. Surveilled preparation phase
-2. Actual operation
-3. Wake up/recovery under surveillance
+1. Surveilled preparation phase.
+2. Actual operation phase.
+3. Wake up and recovery under surveillance phase.
 
 ## Usage
 
