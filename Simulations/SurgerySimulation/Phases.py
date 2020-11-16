@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from Logging.Logging import Logger, LogLevel
-from Simulators.SurgerySimulation.Patients import Patient, PatientStatus
+from Simulations.SurgerySimulation.Patients import Patient, PatientStatus
 
 # Scheduler
 class SimulationPhase(metaclass=ABCMeta):

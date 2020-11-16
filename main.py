@@ -1,4 +1,4 @@
-from Simulators.SurgerySimulation import SurgerySimulator
+from Simulations.SurgerySimulation import SurgerySimulator
 
 def main():
     simulation = SurgerySimulator()

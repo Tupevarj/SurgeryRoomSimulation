@@ -1,8 +1,8 @@
-from Simulators.SimulationBase import SimulationBase
+from Simulations.SimulationBase import SimulationBase
+from Simulations.SurgerySimulation.Patients import PatientGenerator
+from Simulations.SurgerySimulation.Phases import RecoveryPlaces, OperationPlaces, PreparationPlaces
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
-from Simulators.SurgerySimulation.Patients import PatientGenerator
 from Logging.Logging import Logger, LogLevel
-from Simulators.SurgerySimulation.Phases import RecoveryPlaces, OperationPlaces, PreparationPlaces
 import simpy
 import argparse
 import sys
