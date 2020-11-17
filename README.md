@@ -18,7 +18,7 @@ PARAMETER_NAME2: PARAMETER2_VALUE\
 ....
 
 Supported parameters can be printed by calling simulator with command line argument --params. Example configuration file is included in the **Examples** folder.
-Example usage:\
+Example usage:
 ```
 python main.py --conf Examples\configuration.txt
 ```
