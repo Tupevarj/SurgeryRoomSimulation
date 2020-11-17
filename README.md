@@ -11,11 +11,11 @@ Simulates surgery facility with continuous flow of patients. Patient condition c
 
 ## Usage
 
-Simulation configuration is provided by file, which is passed as an command line input to simulator. Parameters are key-value pairs separated by colon:
+Simulation configuration is provided by file, which is passed as an command line input to simulator. Parameters are key-value pairs separated by colon and space:
 
 ```
-PARAMETER_NAME1: PARAMETER1_VALUE\
-PARAMETER_NAME2: PARAMETER2_VALUE\
+PARAMETER_NAME1: PARAMETER1_VALUE
+PARAMETER_NAME2: PARAMETER2_VALUE
 ....
 ```
 
@@ -24,6 +24,12 @@ Example usage:
 ```
 python main.py --conf Examples\configuration.txt
 ```
+
+Example usage to print supported parameters:
+```
+python main.py --params
+```
+
 ## Requirements
 Python >= 3.6
 SimPy
