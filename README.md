@@ -31,7 +31,7 @@ python main.py --params
 ```
 
 ## Requirements
-Python >= 3.6
+Python >= 3.6\
 SimPy
 
 
