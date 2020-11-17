@@ -1,11 +1,13 @@
 from Core.Exceptions import SimulationException
 from abc import ABCMeta, abstractmethod
 
-class ScalarStatistic:
 
-    def __init__(self, description):
+class CounterStatistic:
+
+    def __init__(self, description, unit=""):
         self._counter = 0
         self._description = description
+        self._unit = unit
 
     def update(self):
         self._counter += 1
@@ -16,6 +18,50 @@ class ScalarStatistic:
     def get_description(self):
         return self._description
 
+    def get_unit(self):
+        return self._unit
+
+
+class ScalarStatistic:
+
+    def __init__(self, description, unit=""):
+        self._value = 0
+        self._description = description
+        self._unit = unit
+
+    def update(self, value):
+        self._value += value
+
+    def get_value(self):
+        return self._value
+    
+    def get_description(self):
+        return self._description
+
+    def get_unit(self):
+        return self._unit
+
+    
+class ScalarMeanStatistic:
+
+    def __init__(self, description, unit=""):
+        self._value = 0
+        self._counter  = 0
+        self._description = description
+        self._unit = unit
+
+    def update(self, value):
+        self._value += value
+        self._counter += 1
+
+    def get_value(self):
+        return self._value * 1.0 / self._counter
+    
+    def get_description(self):
+        return self._description
+    
+    def get_unit(self):
+        return self._unit
 
 class TimeStampStatistic:
 
@@ -44,8 +90,10 @@ class StatisticsOutConsole(StatisticsOut):
     
     def output_statistic(self, statistic, *args):
         
-        if isinstance(statistic, ScalarStatistic):
-            print(statistic.get_description(), ": ", statistic.get_value())
+        if isinstance(statistic, CounterStatistic):
+            print((statistic.get_description() +  ":").ljust(50, ' '), str(statistic.get_value()).rjust(10, ' '), statistic.get_unit())
+        elif isinstance(statistic, ScalarMeanStatistic):
+            print((statistic.get_description() +  ":").ljust(50, ' '), f'{statistic.get_value():.2f}'.rjust(10, ' '), statistic.get_unit())
 
         
 class StatisticsCollection:

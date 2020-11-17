@@ -1,7 +1,7 @@
 log-level: DEBUG
 random-seed: 2
-simulation-time: 48
+simulation-time: 120
 number-of-operation-units: 1
-number-of-preparation-units: 1
-number-of-recovery-units: 1
+number-of-preparation-units: 4
+number-of-recovery-units: 6
 severe-patient-portion: 0.3

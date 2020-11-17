@@ -8,6 +8,7 @@ Simulates surgery facility with continuous flow of patients. Patient condition c
 2. Actual operation phase.
 3. Wake up and recovery under surveillance phase.
 
+
 ## Usage
 
 Simulation configuration is provided by file, which is passed as an command line input to simulator. Parameters are key-value pairs separated by colon:
@@ -22,5 +23,16 @@ Example usage:\
 python main.py --conf Examples\configuration.txt
 ```
 ## Requirements
-Python >= 3.5
+Python >= 3.6
 SimPy
+
+
+## Documentation
+
+**PatientGenerator** creates single patient in given interval (**patient-interval** parameter), where patient is moved into preparation phase (**PreparationUnits**) once free unit is available.
+Once preparation phase is completed (based on **preparation-time-** parameters), patient is moved into operation phase (**OperationUnits**) once free unit is available. 
+Once operation phase is completed (based on **operation-time-** parameters), patient is moved into recovery phase (**RecoveryUnits**) once free unit is available.
+After recover phase is completed, patient is released.
+
+
+**TODO: Continue**

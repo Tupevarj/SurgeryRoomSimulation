@@ -103,5 +103,3 @@ class RecoveryUnits(SimulationPhase):
         patient.update_status(PatientStatus.IN_RECOVERY, env.now)
         yield env.timeout(self.time_severe if patient.is_severe else self._time_mild)
         patient.update_status(PatientStatus.RECOVERED, env.now)
-
-        # TODO: Statistics here

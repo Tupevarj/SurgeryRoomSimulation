@@ -1,9 +1,9 @@
-from Simulations.SurgerySimulation import SurgerySimulator
+from Simulations.SurgerySimulation import SurgerySimulation
 from Core.Exceptions import SimulationException
 
 def main():
     try:
-        simulation = SurgerySimulator()
+        simulation = SurgerySimulation()
     except SimulationException as e:
         print(e)
         print("Critical error occured, see above, exiting simulation..")
@@ -11,6 +11,7 @@ def main():
 """
     TODO: Add statistics.
     TODO: Add simulator multi dispatcher (not funny to manyally change configuration file for each simulation).
+    TODO: Log simulation times.
 """
 
 if __name__ == '__main__':

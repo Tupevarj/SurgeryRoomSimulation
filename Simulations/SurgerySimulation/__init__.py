@@ -1,5 +1,5 @@
 from Simulations.SimulationBase import SimulationBase
-from Simulations.SurgerySimulation.Patients import PatientGenerator
+from Simulations.SurgerySimulation.Patients import PatientGenerator, PatientRecords
 from Simulations.SurgerySimulation.Phases import RecoveryUnits, OperationUnits, PreparationUnits
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
 from Statistics.Statistics import StatisticsCollection, ScalarStatistic, StatisticsOutConsole
@@ -9,7 +9,7 @@ import argparse
 import sys
 
 
-class SurgerySimulator(SimulationBase):
+class SurgerySimulation(SimulationBase):
     """
         Simulation scenario for TIES481 course surgery case.
     """
@@ -45,8 +45,9 @@ class SurgerySimulator(SimulationBase):
         self.create(command_line_args.conf.readlines())
         # TODO: close file in case of exception
         command_line_args.conf.close()
-
-        Logger.log(LogLevel.INFO, "Prepared simulation with configuration from file: " + str(sys.argv[-1]))
+        
+        print("-" * 150)
+        Logger.log(LogLevel.INFO, "Prepared simulation with configuration from file: " + str(sys.argv[-1]) + ".")
 
         # Created instances with provided parameters:
         recovery = RecoveryUnits(self.create_resource(self.parameters["number-of-recovery-units"]), 
@@ -61,16 +62,20 @@ class SurgerySimulator(SimulationBase):
                                         self.parameters["preparation-time-mild"], 
                                         self.parameters["preparation-time-severe"])
 
+        # Create records (TODO: Should be able to disable unwanted statistics):
+        patient_records = PatientRecords()
+        
         # Create patient generator:
-        patient_generator = PatientGenerator(self.parameters["patient-interval"], self.parameters["severe-patient-portion"])
-
+        patient_generator = PatientGenerator(self.parameters["patient-interval"], self.parameters["severe-patient-portion"], patient_records)
+        
         # Start simulation (with entry point at patient generator):
+        Logger.log(LogLevel.INFO, "Starting simulation.")
         self.run(patient_generator.run, preparation.enter_phase)
+        Logger.log(LogLevel.INFO, "Simulation ended successfully.")
 
-
-        # Print statistics:
-        print("-" * 100)
-        StatisticsCollection.output_statistic("number_of_prepared", StatisticsOutConsole())
+        # Output statistics:
+        print("-" * 150)
+        PatientRecords.output_statistics(StatisticsOutConsole())
 
 
     def _parse_command_line_arguments(self):
