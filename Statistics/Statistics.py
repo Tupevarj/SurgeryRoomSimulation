@@ -63,15 +63,8 @@ class ScalarMeanStatistic:
     def get_unit(self):
         return self._unit
 
-class TimeStampStatistic:
 
-    def __init__(self):
-        self._values = []
-
-    def update(self, id, timestamp):
-        self._values.append((id, timestamp))
-
-
+ # TODO: Derive on class that outputs to files.
 class StatisticsOut(metaclass=ABCMeta):
 
     def __init__(self):
@@ -93,14 +86,14 @@ class StatisticsOutConsole(StatisticsOut):
         if isinstance(statistic, CounterStatistic):
             print((statistic.get_description() +  ":").ljust(50, ' '), str(statistic.get_value()).rjust(10, ' '), statistic.get_unit())
         elif isinstance(statistic, ScalarMeanStatistic):
-            print((statistic.get_description() +  ":").ljust(50, ' '), f'{statistic.get_value():.2f}'.rjust(10, ' '), statistic.get_unit())
+            print((statistic.get_description() +  ":").ljust(50, ' '), f'{statistic.get_value():.2f}'.rjust(10, ' '), "  ", statistic.get_unit())
 
         
 class StatisticsCollection:
     """
         Singleton for handling statistics.
 
-        NOTE: NOW STORES EVERYTHING ON RAM, UNTIL FLUSHED! TODO: output to files.
+        NOTE: CURRENTLY STORES EVERYTHING ON RAM, UNTIL FLUSHED!
     """
     
     _instance = None

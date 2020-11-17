@@ -36,3 +36,6 @@ After recover phase is completed, patient is released.
 
 
 **TODO: Continue**
+
+
+## Statistics
