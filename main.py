@@ -9,7 +9,6 @@ def main():
         print("Critical error occured, see above, exiting simulation..")
 
 """
-    TODO: Add statistics.
     TODO: Add simulator multi dispatcher (not funny to manyally change configuration file for each simulation).
     TODO: Use exponential distribution.
 """

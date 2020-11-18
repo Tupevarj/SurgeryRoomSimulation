@@ -57,6 +57,7 @@ class SimulationBase(object):
 
 
     def print_supported_parameters(self):
-        # TODO: Pretty printing.
-        for param in self.supported_parameters.items():
-            print(param[0] +  ": " + param[1].get_description() + " Defaults to: " + str(param[1].get_default_value()) + ".")
+        """
+            Prints all the supported parameters and default values.
+        """
+        print("\n".join(["{:30} {} Defaults to: {}.".format(param[0], param[1].get_description(), param[1].get_default_value()) for param in self.supported_parameters.items()]))
