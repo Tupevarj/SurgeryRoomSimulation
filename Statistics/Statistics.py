@@ -51,8 +51,9 @@ class ScalarMeanStatistic:
 
 class TableStatistic:
 
-    def __init__(self, titles, formatter = None):
+    def __init__(self, description, titles, formatter = None):
         self._titles = titles
+        self._description = description
         self._values = []
         self._formatter = self._table_to_string if formatter is None else formatter
 
@@ -66,8 +67,8 @@ class TableStatistic:
         """
             Default formatter, returns table with header and data rows.
         """
-        widths = [len(title) + 1 for title in self._titles]
-        return ("".join(["{:^" + str(w) + "}" for w in widths]) + "\n").format(*self._titles) + '\n'.join([("".join(["{:^" + str(w) + "}" for w in widths])).format(*v) for v in self._values])
+        widths = [max(len(title) + 1, 8) for title in self._titles]
+        return (self._description + "\n" + "".join(["{:^" + str(w) + "}" for w in widths]) + "\n").format(*self._titles) + '\n'.join([("".join(["{:^" + str(w) + "}" for w in widths])).format(*v) for v in self._values])
 
     
 class StatisticsOut(metaclass=ABCMeta):

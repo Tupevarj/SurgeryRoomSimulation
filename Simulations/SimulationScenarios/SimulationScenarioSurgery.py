@@ -36,7 +36,8 @@ class SimulationScenarioSurgery(SimulationBase):
                              "mean_time_per_prepare":   ScalarMeanStatistic("Mean time spent from WAITING to PREPARED", "hours"),
                              "mean_time_per_operate":   ScalarMeanStatistic("Mean time spent from PREPARED to OPERATED", "hours"),
                              "mean_time_per_patient":   ScalarMeanStatistic("Mean time spent from WAITING to RECOVERED", "hours"),
-                             "usage_of_operation_unit": TableStatistic(["Time", "Reserved", "Total"], self.calculate_utilization),
+                             "usage_of_operation_unit": TableStatistic("", ["Time", "Reserved", "Total"], self.calculate_utilization),
+                             "length_entrance_queue":   TableStatistic("Number of patients in entrance queue", ["Time", "Entrance queue length"]),
                              }
 
         # Print custom error message if correct path is not provided:
@@ -77,6 +78,8 @@ class SimulationScenarioSurgery(SimulationBase):
 
         # Create records:
         patient_records = PatientRecords(self.on_patient_status_changed)
+
+        self._waiting_list = []
 
         #times_mild = {"preparation": self.parameters["preparation-time-mild"], "operation": self.parameters["operation-time-mild"], "recovery": self.parameters["recovery-time-mild"] }
         
@@ -120,6 +123,13 @@ class SimulationScenarioSurgery(SimulationBase):
 
         StatisticsCollection.update_statistic("usage_of_operation_unit", [time_stamp, self._operation.resources.count, self._operation.resources.capacity])
 
+        if status == PatientStatus.WAITING:
+            self._waiting_list.append(patient)
+        elif status == PatientStatus.IN_PREPARATION:
+            self._waiting_list.remove(patient)
+
+        StatisticsCollection.update_statistic("length_entrance_queue",   [time_stamp, len(self._waiting_list)])
+
         # Update total time per patient statistic:
         if status == PatientStatus.RECOVERED:
             StatisticsCollection.update_statistic("mean_time_per_patient", patient.time_stamps[status] - patient.time_stamps[PatientStatus.WAITING])
@@ -142,5 +152,4 @@ class SimulationScenarioSurgery(SimulationBase):
                 utilization += (values[i][0] - last_time_stamp) * values[i][1]
                 last_time_stamp = values[i][0]
 
-        return "{:80}: {:.2f} %".format("Utilization of the operation theater: ", utilization / utilization_max * 100.0)
-
+        return "{:80}: {:.2f} %".format("Utilization of the operation theater ", utilization / utilization_max * 100.0)
