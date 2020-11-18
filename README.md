@@ -7,6 +7,7 @@ Simulates surgery facility with continuous flow of patients. Patient condition c
 1. Surveilled preparation phase.
 2. Actual operation phase.
 3. Wake up and recovery under surveillance phase.
+
 Each of these phases has limited resources. Each patient goes through each phase and are allowed to move next phase only when next phase has free resources. Target is to find minimal amount of resources that is needed to handle each patient without excessive waiting between phases.
 
 
