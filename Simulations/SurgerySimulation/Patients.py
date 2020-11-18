@@ -1,5 +1,4 @@
 from Logging.Logging import SimLogger as Logger, LogLevel
-from Statistics.Statistics import *
 from enum import Enum
 import random
 
@@ -25,7 +24,7 @@ class PatientRecord:
     def update_status(self, status, time_stamp):
         self.time_stamps[status] = time_stamp
         Logger.log(LogLevel.DEBUG, "Patient (id: " + str(self.id) + ") is " + str(status).split(".")[1].lower().replace("_", " ") + ".")
-        self._callback(self.id, status)
+        self._callback(status, self)
 
 
 class PatientRecords:
@@ -33,46 +32,16 @@ class PatientRecords:
         Class handling patient statistics collecting.
     """
     _NEXT_ID = 0
-    _STATISTICS = { "number_of_prepared":    CounterStatistic("Number of patients PREPARED in total"),
-                    "number_of_operated":    CounterStatistic("Number of patients OPERATED in total"),
-                    "number_of_recovered":   CounterStatistic("Number of patients RECOVERED in total"),
-                    "mean_time_per_prepare": ScalarMeanStatistic("Mean time spent from WAITING to PREPARED", "hours"),
-                    "mean_time_per_operate": ScalarMeanStatistic("Mean time spent from PREPARED to OPERATED", "hours"),
-                    "mean_time_per_patient": ScalarMeanStatistic("Mean time spent from WAITING to RECOVERED", "hours")
-                    }
 
-    def __init__(self):
+    def __init__(self, patient_status_changed_callback):
         self._patients = []
+        self._callback = patient_status_changed_callback
 
-        for stat in PatientRecords._STATISTICS.items():
-            StatisticsCollection.add_statistic(stat[1], stat[0])
 
     def add_patient(self, is_severe, time_stamp):
-        self._patients.append(PatientRecord(PatientRecords._NEXT_ID, is_severe, time_stamp, self.on_patient_status_changed))
+        self._patients.append(PatientRecord(PatientRecords._NEXT_ID, is_severe, time_stamp, self._callback))
         PatientRecords._NEXT_ID += 1
         return self._patients[-1]
-
-    def on_patient_status_changed(self, id, status):
-
-        # Update scalar statistics:
-        scalars = "number_of_" + str(status).split('.')[1].lower()
-        if scalars in PatientRecords._STATISTICS:
-            StatisticsCollection.update_statistic(scalars)
-
-        # Update total time per patient statistic:
-        if status == PatientStatus.RECOVERED:
-            StatisticsCollection.update_statistic("mean_time_per_patient", self._patients[id].time_stamps[status] - self._patients[id].time_stamps[PatientStatus.WAITING])
-        elif status == PatientStatus.OPERATED:
-            StatisticsCollection.update_statistic("mean_time_per_operate", self._patients[id].time_stamps[status] - self._patients[id].time_stamps[PatientStatus.PREPARED])
-        elif status == PatientStatus.PREPARED:
-            StatisticsCollection.update_statistic("mean_time_per_prepare", self._patients[id].time_stamps[status] - self._patients[id].time_stamps[PatientStatus.WAITING])
-
-
-
-    @staticmethod
-    def output_statistics(output):
-        for stat in PatientRecords._STATISTICS.keys():
-            StatisticsCollection.output_statistic(stat, output)
 
 
 class PatientGenerator:
