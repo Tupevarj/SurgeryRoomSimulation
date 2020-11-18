@@ -38,15 +38,15 @@ Python >= 3.6\
 SimPy
 
 
-## Documentation
+## Developer Documentation
 
 **PatientGenerator** creates single patient in given interval (**patient-interval** parameter), where patient is moved into preparation phase (**PreparationUnits**) once free unit is available. Once preparation phase is completed (based on **preparation-time-** parameters), patient is moved into operation phase (**OperationUnits**) once free unit is available. Once operation phase is completed (based on **operation-time-** parameters), patient is moved into recovery phase (**RecoveryUnits**) once free unit is available.
 After recover phase is completed, patient is released.
 
 
-**TODO: Continue**
+**TODO**
 
 
 ## Statistics
 
-**TODO**
+....
