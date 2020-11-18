@@ -142,9 +142,7 @@ class SimulationScenarioSurgery(SimulationBase):
         last_time_stamp = 0
         for i in range(0, len(values)):
             if last_time_stamp != values[i][0]:
-                elapsed = values[i][0] - last_time_stamp
-                value = values[i][1]
-                utilization += elapsed * value
+                utilization += (values[i][0] - last_time_stamp) * values[i][1]
                 last_time_stamp = values[i][0]
 
         return "{:80}: {:.2f} %".format("Utilization of the operation theater: ", utilization / utilization_max * 100.0)
