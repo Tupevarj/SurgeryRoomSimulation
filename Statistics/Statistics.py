@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 
 class CounterStatistic:
 
-    def __init__(self, description, unit="", formatter = "{:80}: {} {}"):
+    def __init__(self, description, unit="", formatter = lambda values : "{:80}: {} {}".format(*values)):
         self._counter = 0
         self._description = description
         self._unit = unit
@@ -23,12 +23,12 @@ class CounterStatistic:
         return self._unit
     
     def __str__(self):
-        return self._formatter.format(self._description, self._counter, self._unit)
+        return self._formatter([self._description, self._counter, self._unit])
 
 
 class ScalarStatistic:
 
-    def __init__(self, description, unit="", formatter = "{:80}: {} {}"):
+    def __init__(self, description, unit="", formatter = lambda values : "{:80}: {} {}".format(*values)):
         self._value = 0
         self._description = description
         self._unit = unit
@@ -47,11 +47,11 @@ class ScalarStatistic:
         return self._unit
     
     def __str__(self):
-        return self._formatter.format(self._description, self._value, self._unit)
+        return self._formatter([self._description, self._value, self._unit])
     
 class ScalarMeanStatistic:
 
-    def __init__(self, description, unit="", formatter = "{:80}: {:.2f} {}"):
+    def __init__(self, description, unit="", formatter = lambda values : "{:80}: {:.2f} {}".format(*values)):
         self._value = 0
         self._counter  = 0
         self._description = description
@@ -72,7 +72,7 @@ class ScalarMeanStatistic:
         return self._unit
 
     def __str__(self):
-        return self._formatter.format(self._description, self._value * 1.0 / self._counter, self._unit)
+        return self._formatter([self._description, self._value * 1.0 / self._counter, self._unit])
 
 
 class TableStatistic:
@@ -80,15 +80,19 @@ class TableStatistic:
     def __init__(self, titles, formatter = None):
         self._titles = titles
         self._values = []
-        self._formatter = formatter
+        self._formatter = self._table_to_string if formatter is None else formatter
+
 
     def update(self, value):
         self._values.append(value)
 
-    def __str__(self):
 
+    def __str__(self):
         if self._formatter is not None:
             return self._formatter(self._values)
+
+
+    def _table_to_string(self, values):
         widths = [len(title) + 1 for title in self._titles]
         form_titles = "".join(["{:^" + str(w) + "}" for w in widths]) + "\n"
         form_values = "".join(["{:^" + str(w) + "}" for w in widths])

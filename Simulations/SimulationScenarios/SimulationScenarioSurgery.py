@@ -92,10 +92,7 @@ class SimulationScenarioSurgery(SimulationBase):
         print("-" * 150)
         output = StatisticsOutConsole()
         for stat in self._statistics.keys():
-            #if stat != "usage_of_operation_unit":
             StatisticsCollection.output_statistic(stat, output)
-            #else:
-            #    pass
 
 
     def _parse_command_line_arguments(self):
@@ -113,17 +110,15 @@ class SimulationScenarioSurgery(SimulationBase):
 
 
     def on_patient_status_changed(self, status, patient, time_stamp):
-
+        """
+            Callback to collect statistics when patient status is changed.
+        """
         # Update scalar statistics:
         scalars = "number_of_" + str(status).split('.')[1].lower()
         if scalars in self._statistics:
             StatisticsCollection.update_statistic(scalars)
 
-        # SHOULD ACCESS ENV
-        #print(self._operation.resources.count, "/", self._operation.resources.capacity)
-        
         StatisticsCollection.update_statistic("usage_of_operation_unit", [time_stamp, self._operation.resources.count, self._operation.resources.capacity])
-        
 
         # Update total time per patient statistic:
         if status == PatientStatus.RECOVERED:
@@ -133,9 +128,11 @@ class SimulationScenarioSurgery(SimulationBase):
         elif status == PatientStatus.PREPARED:
             StatisticsCollection.update_statistic("mean_time_per_prepare", patient.time_stamps[status] - patient.time_stamps[PatientStatus.WAITING])
 
-    def calculate_utilization(self, values):
 
-        # max 10 * time
+    def calculate_utilization(self, values):
+        """
+            Calculates the utilization of the operation theater. Passed as formatter to TableStatistic.
+        """
         utilization = 0
         utilization_max = self.parameters["number-of-operation-units"] * self.parameters["simulation-time"]
        

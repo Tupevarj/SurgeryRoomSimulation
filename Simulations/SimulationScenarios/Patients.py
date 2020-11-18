@@ -3,6 +3,9 @@ from enum import Enum
 import random
 
 class PatientStatus(Enum):
+    """
+        Enum for patient status.
+    """
     WAITING        = 0,
     IN_PREPARATION = 1,
     PREPARED       = 2,
@@ -28,7 +31,7 @@ class PatientRecord:
 
 class PatientRecords:
     """
-        Class handling patient statistics collecting.
+        Class handling patient statistics collecting. TODO: Could remove recovered patients by wrapping callback.
     """
     _NEXT_ID = 0
 
@@ -38,6 +41,9 @@ class PatientRecords:
 
 
     def add_patient(self, is_severe, time_stamp):
+        """
+            Adds (creates) new patient record to patient record collection.
+        """
         self._patients.append(PatientRecord(PatientRecords._NEXT_ID, is_severe, time_stamp, self._callback))
         PatientRecords._NEXT_ID += 1
         return self._patients[-1]
@@ -55,7 +61,9 @@ class PatientGenerator:
 
 
     def run(self, env, next_step):
-
+        """
+            Starts generating patients.
+        """
         while True:
             patient = self._generate_new_patient(env)
             env.process(next_step(env, patient))
@@ -68,7 +76,6 @@ class PatientGenerator:
             TODO: Not use random, might not produce requested portion. Maybe use random for first patient
                   and calculate next patients condition to match requested portion.
         """
-
         patient = self._patients.add_patient(random.uniform(0.0, 1.0) <= self._severe_threshold, env.now)
         Logger.log(LogLevel.DEBUG, "Created new patient with id: " + str(patient.id) + " and " + ("severe" if patient.is_severe else "mild") + " condition.")
         return patient
