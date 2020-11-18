@@ -1,9 +1,9 @@
-from Simulations.SurgerySimulation import SurgerySimulation
+from Simulations.SimulationScenarios.SimulationScenarioSurgery import SimulationScenarioSurgery
 from Core.Exceptions import SimulationException
 
 def main():
     try:
-        simulation = SurgerySimulation()
+        simulation = SimulationScenarioSurgery()
     except SimulationException as e:
         print(e)
         print("Critical error occured, see above, exiting simulation..")

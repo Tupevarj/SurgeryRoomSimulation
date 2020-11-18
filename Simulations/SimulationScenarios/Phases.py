@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from Simulations.SurgerySimulation.Patients import PatientRecord, PatientStatus
+from Simulations.SimulationScenarios.Patients import PatientRecord, PatientStatus
 
 class SimulationPhase(metaclass=ABCMeta):
     """

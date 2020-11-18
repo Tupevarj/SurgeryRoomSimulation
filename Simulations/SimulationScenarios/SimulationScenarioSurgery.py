@@ -1,6 +1,6 @@
 from Simulations.SimulationBase import SimulationBase
-from Simulations.SurgerySimulation.Patients import PatientGenerator, PatientRecords, PatientStatus
-from Simulations.SurgerySimulation.Phases import RecoveryUnits, OperationUnits, PreparationUnits
+from Simulations.SimulationScenarios.Patients import PatientGenerator, PatientRecords, PatientStatus
+from Simulations.SimulationScenarios.Phases import RecoveryUnits, OperationUnits, PreparationUnits
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
 from Statistics.Statistics import StatisticsCollection, ScalarStatistic, StatisticsOutConsole, TableStatistic
 from Logging.Logging import SimLogger as Logger, LogLevel
@@ -10,7 +10,7 @@ import argparse
 import sys
 
 
-class SurgerySimulation(SimulationBase):
+class SimulationScenarioSurgery(SimulationBase):
     """
         Simulation scenario for TIES481 course surgery case.
     """

@@ -14,7 +14,6 @@ class PatientStatus(Enum):
 
 class PatientRecord:
 
-    
     def __init__(self, id, is_severe, time_stamp, patient_status_changed_callback):
         self.id = id
         self.is_severe = is_severe
