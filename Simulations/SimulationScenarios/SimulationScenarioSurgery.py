@@ -16,7 +16,7 @@ class SimulationScenarioSurgery(SimulationBase):
     """
 
     def __init__(self):
-        
+
         super().__init__({ "number-of-preparation-units":   SimulationParameter("Number of preparation units [1 - 100].", 10, PV.validate_integer, 1, 100),
                            "number-of-operation-units":     SimulationParameter("Number of operation units [1 - 100].", 4, PV.validate_integer, 1, 100),
                            "number-of-recovery-units":      SimulationParameter("Number of operation units [1 - 100].", 10, PV.validate_integer, 1, 100),
@@ -36,7 +36,7 @@ class SimulationScenarioSurgery(SimulationBase):
                              "mean_time_per_prepare":   ScalarMeanStatistic("Mean time spent from WAITING to PREPARED", "hours"),
                              "mean_time_per_operate":   ScalarMeanStatistic("Mean time spent from PREPARED to OPERATED", "hours"),
                              "mean_time_per_patient":   ScalarMeanStatistic("Mean time spent from WAITING to RECOVERED", "hours"),
-                             "usage_of_operation_unit": TableStatistic(["Time", "Reserved", "Total"]),
+                             "usage_of_operation_unit": TableStatistic(["Time", "Reserved", "Total"], self.calculate_utilization),
                              }
 
         # Print custom error message if correct path is not provided:
@@ -77,6 +77,8 @@ class SimulationScenarioSurgery(SimulationBase):
 
         # Create records:
         patient_records = PatientRecords(self.on_patient_status_changed)
+
+        #times_mild = {"preparation": self.parameters["preparation-time-mild"], "operation": self.parameters["operation-time-mild"], "recovery": self.parameters["recovery-time-mild"] }
         
         # Create patient generator:
         patient_generator = PatientGenerator(self.parameters["patient-interval"], self.parameters["severe-patient-portion"], patient_records)
@@ -131,6 +133,19 @@ class SimulationScenarioSurgery(SimulationBase):
         elif status == PatientStatus.PREPARED:
             StatisticsCollection.update_statistic("mean_time_per_prepare", patient.time_stamps[status] - patient.time_stamps[PatientStatus.WAITING])
 
+    def calculate_utilization(self, values):
 
+        # max 10 * time
+        utilization = 0
+        utilization_max = self.parameters["number-of-operation-units"] * self.parameters["simulation-time"]
+       
+        last_time_stamp = 0
+        for i in range(0, len(values)):
+            if last_time_stamp != values[i][0]:
+                elapsed = values[i][0] - last_time_stamp
+                value = values[i][1]
+                utilization += elapsed * value
+                last_time_stamp = values[i][0]
 
+        return "{:80}: {:.2f} %".format("Utilization of the operation theater: ", utilization / utilization_max * 100.0)
 

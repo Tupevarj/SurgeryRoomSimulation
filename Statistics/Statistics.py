@@ -77,19 +77,24 @@ class ScalarMeanStatistic:
 
 class TableStatistic:
 
-    def __init__(self, titles):
+    def __init__(self, titles, formatter = None):
         self._titles = titles
         self._values = []
+        self._formatter = formatter
 
     def update(self, value):
         self._values.append(value)
 
     def __str__(self):
+
+        if self._formatter is not None:
+            return self._formatter(self._values)
         widths = [len(title) + 1 for title in self._titles]
         form_titles = "".join(["{:^" + str(w) + "}" for w in widths]) + "\n"
         form_values = "".join(["{:^" + str(w) + "}" for w in widths])
         return form_titles.format(*self._titles) + '\n'.join([form_values.format(*v) for v in self._values])
 
+    
  # TODO: Derive on class that outputs to files.
 class StatisticsOut(metaclass=ABCMeta):
 
