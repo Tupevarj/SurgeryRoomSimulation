@@ -13,15 +13,6 @@ class CounterStatistic:
     def update(self):
         self._counter += 1
 
-    def get_value(self):
-        return self._counter
-    
-    def get_description(self):
-        return self._description
-
-    def get_unit(self):
-        return self._unit
-    
     def __str__(self):
         return self._formatter([self._description, self._counter, self._unit])
 
@@ -37,15 +28,6 @@ class ScalarStatistic:
     def update(self, value):
         self._value += value
 
-    def get_value(self):
-        return self._value
-    
-    def get_description(self):
-        return self._description
-
-    def get_unit(self):
-        return self._unit
-    
     def __str__(self):
         return self._formatter([self._description, self._value, self._unit])
     
@@ -62,15 +44,6 @@ class ScalarMeanStatistic:
         self._value += value
         self._counter += 1
 
-    def get_value(self):
-        return self._value * 1.0 / self._counter
-    
-    def get_description(self):
-        return self._description
-    
-    def get_unit(self):
-        return self._unit
-
     def __str__(self):
         return self._formatter([self._description, self._value * 1.0 / self._counter, self._unit])
 
@@ -82,26 +55,24 @@ class TableStatistic:
         self._values = []
         self._formatter = self._table_to_string if formatter is None else formatter
 
-
     def update(self, value):
         self._values.append(value)
 
-
     def __str__(self):
-        if self._formatter is not None:
-            return self._formatter(self._values)
-
+        return self._formatter(self._values)
 
     def _table_to_string(self, values):
+        """
+            Default formatter, returns table with header and data rows.
+        """
         widths = [len(title) + 1 for title in self._titles]
-        form_titles = "".join(["{:^" + str(w) + "}" for w in widths]) + "\n"
-        form_values = "".join(["{:^" + str(w) + "}" for w in widths])
-        return form_titles.format(*self._titles) + '\n'.join([form_values.format(*v) for v in self._values])
+        return ("".join(["{:^" + str(w) + "}" for w in widths]) + "\n").format(*self._titles) + '\n'.join([("".join(["{:^" + str(w) + "}" for w in widths])).format(*v) for v in self._values])
 
     
- # TODO: Derive on class that outputs to files.
 class StatisticsOut(metaclass=ABCMeta):
-
+    """
+        Statistic output interface. TODO: Derive on that outputs to file.
+    """
     def __init__(self):
         pass
     
@@ -112,7 +83,9 @@ class StatisticsOut(metaclass=ABCMeta):
     
 
 class StatisticsOutConsole(StatisticsOut):
-
+    """
+        Statistic output to stdout.
+    """
     def __init__(self):
         pass
     
@@ -123,10 +96,7 @@ class StatisticsOutConsole(StatisticsOut):
 class StatisticsCollection:
     """
         Singleton for handling statistics.
-
-        NOTE: CURRENTLY STORES EVERYTHING ON RAM, UNTIL FLUSHED!
     """
-    
     _instance = None
 
     class __StatisticsCollection:
@@ -158,12 +128,21 @@ class StatisticsCollection:
         
     @staticmethod
     def add_statistic(statistic, name):
+        """
+            Adds new statistic to the collection.
+        """
         StatisticsCollection._instance.add_statistic(statistic, name)
         
     @staticmethod
     def update_statistic(name, *args):
+        """
+            Adds data to previously created statistic.
+        """
         StatisticsCollection._instance.update_statistic(name, *args)
 
     @staticmethod
     def output_statistic(name, output):
+        """
+            Outputs statistic. Depending on <output>, could ouput to stdout or file.
+        """
         StatisticsCollection._instance.output_statistic(name, output)
