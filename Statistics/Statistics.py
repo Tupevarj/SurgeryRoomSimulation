@@ -31,6 +31,7 @@ class ScalarStatistic:
     def __str__(self):
         return self._formatter([self._description, self._value, self._unit])
     
+
 class ScalarMeanStatistic:
 
     def __init__(self, description, unit="", formatter = lambda values : "{:80}: {:.2f} {}".format(*values)):

@@ -7,9 +7,7 @@ import random
 class SimulationBase(object):
     """
         Base class for simulations.
-
         Parses parameters from configuration file read into lines array.
-
     """
     
     COMMON_PARAMS = { "log-level":       SimulationParameter("Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL.", "INFO", PV.validate_enum, LogLevel),
@@ -34,7 +32,7 @@ class SimulationBase(object):
         # Initialize logger with requested log level and log all used parameters:
         Logger(self.parameters["log-level"], self._simulation)
         Logger.log(LogLevel.INFO, "Starting simulation with following parameters:\n" + 
-                   ("\n").join([p + ": " + str(self.parameters[p]) for p in self.supported_parameters]))
+                   "\n".join(["{:30} {}".format(p, self.parameters[p]) for p in self.supported_parameters]))
 
         # Initialize statistics:
         StatisticsCollection()

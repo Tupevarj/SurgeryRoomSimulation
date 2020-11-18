@@ -20,8 +20,9 @@ class PatientRecord:
     def __init__(self, id, is_severe, time_stamp, patient_status_changed_callback):
         self.id = id
         self.is_severe = is_severe
-        self.time_stamps = { PatientStatus.WAITING: time_stamp }
+        self.time_stamps = dict()
         self._callback = patient_status_changed_callback
+        self.update_status(PatientStatus.WAITING, time_stamp)
 
     def update_status(self, status, time_stamp):
         self.time_stamps[status] = time_stamp
