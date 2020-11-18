@@ -24,7 +24,7 @@ class PatientRecord:
     def update_status(self, status, time_stamp):
         self.time_stamps[status] = time_stamp
         Logger.log(LogLevel.DEBUG, "Patient (id: " + str(self.id) + ") is " + str(status).split(".")[1].lower().replace("_", " ") + ".")
-        self._callback(status, self)
+        self._callback(status, self, time_stamp)
 
 
 class PatientRecords:

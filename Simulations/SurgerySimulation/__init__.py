@@ -2,7 +2,7 @@ from Simulations.SimulationBase import SimulationBase
 from Simulations.SurgerySimulation.Patients import PatientGenerator, PatientRecords, PatientStatus
 from Simulations.SurgerySimulation.Phases import RecoveryUnits, OperationUnits, PreparationUnits
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
-from Statistics.Statistics import StatisticsCollection, ScalarStatistic, StatisticsOutConsole
+from Statistics.Statistics import StatisticsCollection, ScalarStatistic, StatisticsOutConsole, TableStatistic
 from Logging.Logging import SimLogger as Logger, LogLevel
 from Statistics.Statistics import *
 import simpy
@@ -30,12 +30,13 @@ class SurgerySimulation(SimulationBase):
                            "recovery-time-mild":            SimulationParameter("Time in hours that recovery takes for mild patients.", 12.0, PV.validate_float, 0.0),
                          });
 
-        self._statistics = { "number_of_prepared":    CounterStatistic("Number of patients PREPARED in total"),
-                             "number_of_operated":    CounterStatistic("Number of patients OPERATED in total"),
-                             "number_of_recovered":   CounterStatistic("Number of patients RECOVERED in total"),
-                             "mean_time_per_prepare": ScalarMeanStatistic("Mean time spent from WAITING to PREPARED", "hours"),
-                             "mean_time_per_operate": ScalarMeanStatistic("Mean time spent from PREPARED to OPERATED", "hours"),
-                             "mean_time_per_patient": ScalarMeanStatistic("Mean time spent from WAITING to RECOVERED", "hours")
+        self._statistics = { "number_of_prepared":      CounterStatistic("Number of patients PREPARED in total"),
+                             "number_of_operated":      CounterStatistic("Number of patients OPERATED in total"),
+                             "number_of_recovered":     CounterStatistic("Number of patients RECOVERED in total"),
+                             "mean_time_per_prepare":   ScalarMeanStatistic("Mean time spent from WAITING to PREPARED", "hours"),
+                             "mean_time_per_operate":   ScalarMeanStatistic("Mean time spent from PREPARED to OPERATED", "hours"),
+                             "mean_time_per_patient":   ScalarMeanStatistic("Mean time spent from WAITING to RECOVERED", "hours"),
+                             "usage_of_operation_unit": TableStatistic(["Time", "Reserved", "Total"]),
                              }
 
         # Print custom error message if correct path is not provided:
@@ -66,11 +67,11 @@ class SurgerySimulation(SimulationBase):
                                   self.parameters["recovery-time-mild"], 
                                   self.parameters["recovery-time-severe"])
         self._operation = OperationUnits(self.create_resource(self.parameters["number-of-operation-units"]), 
-                                    recovery, 
+                                    self._recovery, 
                                     self.parameters["operation-time-mild"], 
                                     self.parameters["operation-time-severe"])
         self._preparation = PreparationUnits(self.create_resource(self.parameters["number-of-preparation-units"]), 
-                                        operation, 
+                                        self._operation, 
                                         self.parameters["preparation-time-mild"], 
                                         self.parameters["preparation-time-severe"])
 
@@ -82,14 +83,17 @@ class SurgerySimulation(SimulationBase):
         
         # Start simulation (with entry point at patient generator):
         Logger.log(LogLevel.INFO, "Starting simulation.")
-        self.run(patient_generator.run, preparation.enter_phase)
+        self.run(patient_generator.run, self._preparation.enter_phase)
         Logger.log(LogLevel.INFO, "Simulation ended successfully.")
 
         # Output statistics:
         print("-" * 150)
         output = StatisticsOutConsole()
         for stat in self._statistics.keys():
+            #if stat != "usage_of_operation_unit":
             StatisticsCollection.output_statistic(stat, output)
+            #else:
+            #    pass
 
 
     def _parse_command_line_arguments(self):
@@ -106,12 +110,18 @@ class SurgerySimulation(SimulationBase):
         return parser.parse_args()
 
 
-    def on_patient_status_changed(self, status, patient):
+    def on_patient_status_changed(self, status, patient, time_stamp):
 
         # Update scalar statistics:
         scalars = "number_of_" + str(status).split('.')[1].lower()
         if scalars in self._statistics:
             StatisticsCollection.update_statistic(scalars)
+
+        # SHOULD ACCESS ENV
+        #print(self._operation.resources.count, "/", self._operation.resources.capacity)
+        
+        StatisticsCollection.update_statistic("usage_of_operation_unit", [time_stamp, self._operation.resources.count, self._operation.resources.capacity])
+        
 
         # Update total time per patient statistic:
         if status == PatientStatus.RECOVERED:

@@ -4,10 +4,11 @@ from abc import ABCMeta, abstractmethod
 
 class CounterStatistic:
 
-    def __init__(self, description, unit=""):
+    def __init__(self, description, unit="", formatter = "{:80}: {} {}"):
         self._counter = 0
         self._description = description
         self._unit = unit
+        self._formatter = formatter
 
     def update(self):
         self._counter += 1
@@ -20,14 +21,18 @@ class CounterStatistic:
 
     def get_unit(self):
         return self._unit
+    
+    def __str__(self):
+        return self._formatter.format(self._description, self._counter, self._unit)
 
 
 class ScalarStatistic:
 
-    def __init__(self, description, unit=""):
+    def __init__(self, description, unit="", formatter = "{:80}: {} {}"):
         self._value = 0
         self._description = description
         self._unit = unit
+        self._formatter = formatter
 
     def update(self, value):
         self._value += value
@@ -40,15 +45,18 @@ class ScalarStatistic:
 
     def get_unit(self):
         return self._unit
-
+    
+    def __str__(self):
+        return self._formatter.format(self._description, self._value, self._unit)
     
 class ScalarMeanStatistic:
 
-    def __init__(self, description, unit=""):
+    def __init__(self, description, unit="", formatter = "{:80}: {:.2f} {}"):
         self._value = 0
         self._counter  = 0
         self._description = description
         self._unit = unit
+        self._formatter = formatter
 
     def update(self, value):
         self._value += value
@@ -63,6 +71,24 @@ class ScalarMeanStatistic:
     def get_unit(self):
         return self._unit
 
+    def __str__(self):
+        return self._formatter.format(self._description, self._value * 1.0 / self._counter, self._unit)
+
+
+class TableStatistic:
+
+    def __init__(self, titles):
+        self._titles = titles
+        self._values = []
+
+    def update(self, value):
+        self._values.append(value)
+
+    def __str__(self):
+        widths = [len(title) + 1 for title in self._titles]
+        form_titles = "".join(["{:^" + str(w) + "}" for w in widths]) + "\n"
+        form_values = "".join(["{:^" + str(w) + "}" for w in widths])
+        return form_titles.format(*self._titles) + '\n'.join([form_values.format(*v) for v in self._values])
 
  # TODO: Derive on class that outputs to files.
 class StatisticsOut(metaclass=ABCMeta):
@@ -82,11 +108,7 @@ class StatisticsOutConsole(StatisticsOut):
         pass
     
     def output_statistic(self, statistic, *args):
-        
-        if isinstance(statistic, CounterStatistic):
-            print((statistic.get_description() +  ":").ljust(50, ' '), str(statistic.get_value()).rjust(10, ' '), statistic.get_unit())
-        elif isinstance(statistic, ScalarMeanStatistic):
-            print((statistic.get_description() +  ":").ljust(50, ' '), f'{statistic.get_value():.2f}'.rjust(10, ' '), "  ", statistic.get_unit())
+        print(str(statistic))
 
         
 class StatisticsCollection:
