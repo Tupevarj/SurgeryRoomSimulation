@@ -11,7 +11,6 @@ def main():
 """
     TODO: Add statistics.
     TODO: Add simulator multi dispatcher (not funny to manyally change configuration file for each simulation).
-    TODO: Log simulation times.
     TODO: Use exponential distribution.
 """
 

@@ -5,10 +5,16 @@ from Logging.Logging import Logger, LogLevel
 
 
 class ParameterValidation:
+    """
+        Parameter parsing and validation methods.
+    """
 
     @staticmethod
     def validate_enum(string, enum):
-
+        """
+            Checks that given <string> is valid enum of type <enum>. 
+            Return enum value if valid, otherwise None is returned.
+        """
         try:
             return enum[string]
         except:
@@ -17,27 +23,31 @@ class ParameterValidation:
         
     @staticmethod
     def validate_integer(string, min = 0, max = sys.maxsize):
-
+        """
+            Checks that given <string> is valid integer and between <min> and <max>. 
+            Returns corresponding integer value if valid, otherwise None is returned.
+        """
         try:
             value = int(string)
             if value >= min and value <= max:
                 return value
         except:
             pass
-
         return None
 
     
     @staticmethod
     def validate_float(string, min = sys.float_info.min, max = sys.float_info.max):
-
+        """
+            Checks that given <string> is valid float and between <min> and <max>. 
+            Returns corresponding float value if valid, otherwise None is returned.
+        """
         try:
             value = float(string)
             if value >= min and value <= max:
                 return value
         except:
             pass
-
         return None
 
 
@@ -55,12 +65,21 @@ class SimulationParameter:
 
 
     def get_default_value(self):
+        """
+            Returns default value.
+        """
         return self._default_value
 
     def get_description(self):
+        """
+            Returns parameter desrciption.
+        """
         return self._description
 
     def validate(self, string):
+        """
+            Validates provided <string> against validator.
+        """
         return self._validator(string, *self._args)
 
     

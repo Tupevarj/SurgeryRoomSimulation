@@ -1,4 +1,4 @@
-from Logging.Logging import Logger, LogLevel
+from Logging.Logging import SimLogger as Logger, LogLevel
 from Statistics.Statistics import *
 from enum import Enum
 import random

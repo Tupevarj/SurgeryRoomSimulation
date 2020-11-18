@@ -3,7 +3,7 @@ from Simulations.SurgerySimulation.Patients import PatientGenerator, PatientReco
 from Simulations.SurgerySimulation.Phases import RecoveryUnits, OperationUnits, PreparationUnits
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
 from Statistics.Statistics import StatisticsCollection, ScalarStatistic, StatisticsOutConsole
-from Logging.Logging import Logger, LogLevel
+from Logging.Logging import SimLogger as Logger, LogLevel
 import simpy
 import argparse
 import sys

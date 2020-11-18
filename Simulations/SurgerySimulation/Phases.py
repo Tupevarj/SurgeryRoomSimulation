@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from Logging.Logging import Logger, LogLevel
 from Simulations.SurgerySimulation.Patients import PatientRecord, PatientStatus
 
 class SimulationPhase(metaclass=ABCMeta):

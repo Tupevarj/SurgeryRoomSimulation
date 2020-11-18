@@ -1,4 +1,4 @@
-from Logging.Logging import Logger, LogLevel
+from Logging.Logging import SimLogger as Logger, LogLevel
 from Core.Parameters import SimulationParameters, SimulationParameter, ParameterValidation as PV
 from Statistics.Statistics import StatisticsCollection
 import simpy
@@ -32,7 +32,7 @@ class SimulationBase(object):
         self.parameters = SimulationParameters(lines, self.supported_parameters)
 
         # Initialize logger with requested log level and log all used parameters:
-        Logger(self.parameters["log-level"])
+        Logger(self.parameters["log-level"], self._simulation)
         Logger.log(LogLevel.INFO, "Starting simulation with following parameters:\n" + 
                    ("\n").join([p + ": " + str(self.parameters[p]) for p in self.supported_parameters]))
 
