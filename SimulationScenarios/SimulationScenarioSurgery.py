@@ -2,16 +2,16 @@ from Core.SimulationBase import SimulationBase
 from SimulationScenarios.Patients import PatientGenerator, PatientRecords, PatientStatus
 from SimulationScenarios.Phases import RecoveryUnits, OperationUnits, PreparationUnits
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
-from Statistics.Statistics import StatisticsCollection, ScalarStatistic, StatisticsOutConsole, TableStatistic
+from Statistics.Statistics import StatisticsCollection, ScalarStatistic, StatisticsWriterStdout, TableStatistic, StatisticsWriterFile
 from Logging.Logging import SimLogger as Logger, LogLevel
 from Statistics.Statistics import *
+from pathlib import Path
 import simpy
 import argparse
 import sys
 
 """
 
-    Inherits SimulationBase
 
 """
 
@@ -35,15 +35,22 @@ class SimulationScenarioSurgery(SimulationBase):
                            "recovery-time-mild":            SimulationParameter("Time in hours that recovery takes for mild patients.", 12.0, PV.validate_float, 0.0),
                          });
 
-        self._statistics = { "number_of_prepared":      CounterStatistic("Number of patients PREPARED in total"),
-                             "number_of_operated":      CounterStatistic("Number of patients OPERATED in total"),
-                             "number_of_recovered":     CounterStatistic("Number of patients RECOVERED in total"),
-                             "mean_time_per_prepare":   ScalarMeanStatistic("Mean time spent from WAITING to PREPARED", "hours"),
-                             "mean_time_per_operate":   ScalarMeanStatistic("Mean time spent from PREPARED to OPERATED", "hours"),
-                             "mean_time_per_patient":   ScalarMeanStatistic("Mean time spent from WAITING to RECOVERED", "hours"),
-                             "usage_of_operation_unit": TableStatistic("", ["Time", "Reserved", "Total"], self.calculate_utilization),
-                             "length_entrance_queue":   TableStatistic("Number of patients in entrance queue", ["Time", "Entrance queue length"]),
-                             }
+        self._statistics = {
+                            "scalars.txt":
+                              {
+                                  "number_of_prepared":      CounterStatistic("Number of patients PREPARED in total"),
+                                  "number_of_operated":      CounterStatistic("Number of patients OPERATED in total"),
+                                  "number_of_recovered":     CounterStatistic("Number of patients RECOVERED in total"),
+                                  "mean_time_per_prepare":   ScalarMeanStatistic("Mean time spent from WAITING to PREPARED", "hours"),
+                                  "mean_time_per_operate":   ScalarMeanStatistic("Mean time spent from PREPARED to OPERATED", "hours"),
+                                  "mean_time_per_patient":   ScalarMeanStatistic("Mean time spent from WAITING to RECOVERED", "hours"),
+                                  "usage_of_operation_unit": TableStatistic(["Time", "Reserved", "Total"], self.calculate_utilization),
+                              },
+                            "entrance-queue.csv":
+                              {
+                                  "length_entrance_queue":   TableStatistic(["Time", "Entrance queue length"]),
+                              },
+                            }
 
         # Print custom error message if correct path is not provided:
         try:
@@ -62,8 +69,7 @@ class SimulationScenarioSurgery(SimulationBase):
         command_line_args.conf.close()
 
         # Enable statistics:
-        for stat in self._statistics.items():
-            StatisticsCollection.add_statistic(stat[1], stat[0])
+        [StatisticsCollection.add_statistic(stat[1], stat[0]) for group in self._statistics.keys() for stat in self._statistics[group].items()]
         
         print("-" * 150)
         Logger.log(LogLevel.INFO, "Prepared simulation with configuration from file: " + str(sys.argv[-1]) + ".")
@@ -86,8 +92,6 @@ class SimulationScenarioSurgery(SimulationBase):
 
         self._waiting_list = []
 
-        #times_mild = {"preparation": self.parameters["preparation-time-mild"], "operation": self.parameters["operation-time-mild"], "recovery": self.parameters["recovery-time-mild"] }
-        
         # Create patient generator:
         patient_generator = PatientGenerator(self.parameters["patient-interval"], self.parameters["severe-patient-portion"], patient_records)
         
@@ -96,12 +100,15 @@ class SimulationScenarioSurgery(SimulationBase):
         self.run(patient_generator.run, self._preparation.enter_phase)
         Logger.log(LogLevel.INFO, "Simulation ended successfully.")
 
-        # Output statistics:
-        print("-" * 150)
-        output = StatisticsOutConsole()
-        for stat in self._statistics.keys():
-            StatisticsCollection.output_statistic(stat, output)
+        # Write all statistics to files:
+        output = StatisticsWriterFile()
+        [StatisticsCollection.output_statistic(self._statistics[file].keys(), output, self.parameters["result-folder"] / file) for file in self._statistics.keys()]
 
+        # Write scalar statistics to stdout:
+        print("-" * 150)
+        output = StatisticsWriterStdout()
+        [StatisticsCollection.output_statistic(stat, output) for stat in self._statistics["scalars.txt"].keys()]
+            
 
     def _parse_command_line_arguments(self):
         """
@@ -121,27 +128,23 @@ class SimulationScenarioSurgery(SimulationBase):
         """
             Callback to collect statistics when patient status is changed.
         """
-        # Update scalar statistics:
-        scalars = "number_of_" + str(status).split('.')[1].lower()
-        if scalars in self._statistics:
-            StatisticsCollection.update_statistic(scalars)
 
+        StatisticsCollection.update_statistic("length_entrance_queue",   [time_stamp, len(self._waiting_list)])
         StatisticsCollection.update_statistic("usage_of_operation_unit", [time_stamp, self._operation.resources.count, self._operation.resources.capacity])
 
         if status == PatientStatus.WAITING:
             self._waiting_list.append(patient)
         elif status == PatientStatus.IN_PREPARATION:
             self._waiting_list.remove(patient)
-
-        StatisticsCollection.update_statistic("length_entrance_queue",   [time_stamp, len(self._waiting_list)])
-
-        # Update total time per patient statistic:
-        if status == PatientStatus.RECOVERED:
-            StatisticsCollection.update_statistic("mean_time_per_patient", patient.time_stamps[status] - patient.time_stamps[PatientStatus.WAITING])
-        elif status == PatientStatus.OPERATED:
-            StatisticsCollection.update_statistic("mean_time_per_operate", patient.time_stamps[status] - patient.time_stamps[PatientStatus.PREPARED])
         elif status == PatientStatus.PREPARED:
             StatisticsCollection.update_statistic("mean_time_per_prepare", patient.time_stamps[status] - patient.time_stamps[PatientStatus.WAITING])
+            StatisticsCollection.update_statistic("number_of_prepared")
+        elif status == PatientStatus.OPERATED:
+            StatisticsCollection.update_statistic("mean_time_per_operate", patient.time_stamps[status] - patient.time_stamps[PatientStatus.PREPARED])
+            StatisticsCollection.update_statistic("number_of_operated")
+        elif status == PatientStatus.RECOVERED:
+            StatisticsCollection.update_statistic("mean_time_per_patient", patient.time_stamps[status] - patient.time_stamps[PatientStatus.WAITING])
+            StatisticsCollection.update_statistic("number_of_recovered")
 
 
     def calculate_utilization(self, values):
@@ -157,4 +160,4 @@ class SimulationScenarioSurgery(SimulationBase):
                 utilization += (values[i][0] - last_time_stamp) * values[i][1]
                 last_time_stamp = values[i][0]
 
-        return "{:80}: {:.2f} %".format("Utilization of the operation theater ", utilization / utilization_max * 100.0)
+        return "{:80} {:.2f} %".format("Utilization of the operation theater ", utilization / utilization_max * 100.0)
