@@ -2,8 +2,23 @@ import re
 import sys
 from pathlib import Path
 from Core.Exceptions import SimulationParameterException
-from Logging.Logging import Logger, LogLevel
 
+"""
+    Parameters module
+
+    ParameterValidation class holds static methods to validate user provided parameter values.
+    SimulationParameter is holder class for single parameter. To add a new parameter, create new
+                        instance of this class.
+
+    SimulationParameters handles parameter parsing. Constructor takes list of supported parameters
+                         and list of lines containing parseable string. Syntax is:
+
+                         <NAME_OF_PARAMETER1>: <VALUE_OF_PARAMETER1>
+                         <NAME_OF_PARAMETER1>: <VALUE_OF_PARAMETER1>
+
+                         .Each parameter should be in it's own line. Line comments starting with
+                         '#' character and empty spaces are allowed.
+"""
 
 class ParameterValidation:
     """
@@ -17,9 +32,9 @@ class ParameterValidation:
             Return enum value if valid, otherwise None is returned.
         """
         try:
-            return enum[string]
+            return enum[string], ""
         except:
-            return None
+            return None, "Given value is not type of {}.".format(enum)
 
         
     @staticmethod
@@ -31,10 +46,10 @@ class ParameterValidation:
         try:
             value = int(string)
             if value >= min and value <= max:
-                return value
+                return value, ""
         except:
-            pass
-        return None
+            return None, "Given value is not a integer."
+        return None, "Given value is not in a range  [{}, {}].".format(min, max)
 
     
     @staticmethod
@@ -46,10 +61,10 @@ class ParameterValidation:
         try:
             value = float(string)
             if value >= min and value <= max:
-                return value
+                return value, ""
         except:
-            pass
-        return None
+            return None, "Given value is not a floating point."
+        return None, "Given value is not in a range [{}, {}].".format(min, max)
 
     
     @staticmethod
@@ -60,10 +75,10 @@ class ParameterValidation:
         """
         try:
             Path(string).mkdir(parents=True, exist_ok=True)
-            return Path(string).resolve()
+            return Path(string).resolve(), ""
         except:
             pass
-        return None
+        return None, "Cannot create folder named {}.".format(string)
     
 
 
@@ -72,33 +87,35 @@ class SimulationParameter:
         Class for single parameter used in simulator. Contains default value, validator and additional args for validator.
     """
     def __init__(self, description, default, validator, *args):
-        self._validator = validator
-        self._description = description
-        self._default_value = default
-        self._args = args
+        self.__validator = validator
+        self.__description = description
+        self.__default_value = default
+        self.__args = args
 
 
     def get_default_value(self):
         """
             Returns default value.
         """
-        return self._default_value
+        return self.__default_value
+
 
     def get_description(self):
         """
             Returns parameter desrciption.
         """
-        return self._description
+        return self.__description
+
 
     def validate(self, string):
         """
             Validates provided <string> against validator.
         """
-        return self._validator(string, *self._args)
+        return self.__validator(string, *self.__args)
 
     
 
-class SimulationParameters(object):
+class SimulationParameters():
 
   
     def __init__(self, lines, supported_parameters):
@@ -109,30 +126,28 @@ class SimulationParameters(object):
         # Fill with defaults:
         self._parameters = {k:v.get_default_value() for k, v in supported_parameters.items()}
 
-        # Parse each line from lines:
+        # Override default values with provided values:
         for i in range(len(lines)):
-            parameter_fields = self._split_param_line(lines[i])
+
+            name, value = self._split_param_line(lines[i])
 
             # Validate syntax:
-            if len(parameter_fields) < 2:
-                raise SimulationParameterException("Wrong syntax at line " + str(i) + ".")
-
-            if not parameter_fields[0] in supported_parameters:
-                raise SimulationParameterException("Unknown parameter '" + parameter_fields[0] + "' at line " + str(i) + ".")
+            if name is None:
+                if not self._is_empty_or_comment_line(lines[i]):
+                    raise SimulationParameterException("Wrong syntax at line {}.".format(i+1))
+                continue
+            elif not name in supported_parameters:
+                raise SimulationParameterException("Unknown parameter '{}' at line {}.".format(name, i+1))
 
             # Parse:
-            try:
-                parsed = supported_parameters[parameter_fields[0]].validate(parameter_fields[1].strip())
-            except:
-                raise SimulationParameterException("Parameter '" + parameter_fields[0] + "' has unvalid typed value at line " + str(i) + ".") 
-            
+            parsed, error = supported_parameters[name].validate(value)
+
             # Validate parsing:
             if parsed is None:
-                raise SimulationParameterException("Parameter '" + parameter_fields[0] + "' has non-valid value at line " + str(i) + ".")   # TODO: Print better explanation
+                raise SimulationParameterException("Parameter '{}' has non-valid value at the line {}.\n{}".format(name, i+1, error))
 
-            self._parameters[parameter_fields[0]] = parsed
+            self._parameters[name] = parsed
         
-
 
     def __getitem__(self, p):
         """
@@ -143,7 +158,18 @@ class SimulationParameters(object):
 
     def _split_param_line(self, line):
         """ 
-            Splits line according to syntax: <KEY>: <VALUE>
+            Splits line according to syntax: <KEY>: <VALUE>. Ignores empty lines and single 
+            line comments that start with '#' character.
         """
-        return re.split(':\s+', line)
+        found = re.search(r"(^[^\s]+):\s*([^\s]+)\s*[\n|\#]", line)
+        if found is not None and len(found.groups()) == 2:
+            return found.groups()[0], found.groups()[1]
+        return None, None
+
+
+    def _is_empty_or_comment_line(self, line):
+        """
+            Checks if line is empty or line is commented.
+        """
+        return bool(re.search(r"^\s*(\#.*)|(^\n)", line))
 

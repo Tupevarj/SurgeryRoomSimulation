@@ -20,12 +20,12 @@ from enum import IntEnum
 class LogOutput(IntEnum):
     """
         Enum to simplify logging output parameter.
+        (Not used by logging module).
     """
     LOG_NONE   = 0
     LOG_STDOUT = 2
     LOG_FILE   = 4
     LOG_BOTH   = 8
-
 
 
 
@@ -56,7 +56,7 @@ class SimulationBase(object):
         self.parameters = SimulationParameters(lines, self.supported_parameters)
 
         # Initialize logger with requested log level and log all used parameters:
-        Logger(self.parameters["log-level"], self._simulation, stdout=self.parameters["log-out"] & 10, file = str(self.parameters["result-folder"]) + "/log.log" if self.parameters["log-out"] & 12 else None)
+        Logger(self.parameters["log-level"], self._simulation, stdout=self.parameters["log-out"] & 10, file = self.parameters["result-folder"] / "log.log" if self.parameters["log-out"] & 12 else None)
         Logger.log(LogLevel.INFO, "Starting simulation with following parameters:\n" + 
                    "\n".join(["{:30} {}".format(p, self.parameters[p]) for p in self.supported_parameters]))
 

@@ -1,13 +1,16 @@
-log-level: DEBUG
-log-out: LOG_BOTH
+log-level: INFO
+log-out: LOG_BOTH 
 random-seed: 2
-simulation-time: 120
-number-of-operation-units: 2
+simulation-time: 120				# Simulation time
+
+# Number of units
+number-of-operation-units: 20
 number-of-preparation-units: 12
 number-of-recovery-units: 3
+
 severe-patient-portion: 0.0
 operation-time-mild: 20
 preparation-time-mild: 40
 recovery-time-mild: 40
 patient-interval: 1
-result-folder: Examples
+result-folder: Examples				# Folder where results are stored (absolute or relative to current).
