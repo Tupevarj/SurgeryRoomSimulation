@@ -2,11 +2,22 @@ import logging
 import sys
 from enum import IntEnum
 
+"""
+    Logging Module
+
+    Basic logging functionality with different log levels <LogLevel>.
+    SimLogger expands basic Logger by prefixing logged messages with 
+    simulation time.
+
+    Basic usage (through static log method):
+    SimLogger.log(<LogLevel>, <message>)
+
+"""
 
 class LogLevel(IntEnum):
     """
-        Supported log level. For now, maps with standard logging module 
-        levels for easy conversion between these two.
+        Supported log level. For now, maps with standard logging 
+        module levels for easy conversion.
     """
     DEBUG    = 10
     INFO     = 20
@@ -15,87 +26,75 @@ class LogLevel(IntEnum):
     CRITICAL = 50
 
 
-
-class Logger:
+class Logger(object):
     """
-        Wrapper singleton class for python standard logging.
+        Wrapper singleton class for Python standard logging.
     """
     
-    _instance = None
-
-    class __Logger:
+    __instance = None
+    
+    def __new__(cls, level, stdout=True, file=None, format = ('%(asctime)s %(levelname)5.5s - %(message)s', "%Y-%m-%d %H:%M:%S")):
         """
-            Nested class needed for singleton pattern.
+            Creates singleton instance (first call only).
         """
-        def __init__(self, level, format, stdout=True, file=None):
+        if Logger.__instance is None:
+            Logger.__instance = object.__new__(cls)
+            Logger.__instance._log = logging.getLogger(__name__)
+            Logger.__instance._log.setLevel(int(level))
+
+            handlers = []
+            stdout and handlers.append(logging.StreamHandler(sys.stdout))
+            file is not None and handlers.append(logging.FileHandler(file))
             
-            self._log = logging.getLogger(__name__)
-            self._log.setLevel(int(level))
+            logging.basicConfig(level=int(level), 
+                                force=True,
+                                format=format[0],
+                                datefmt=format[1],
+                                handlers=handlers)
 
-            # Use standard output:
-            if stdout:
-                log_handler = logging.StreamHandler(sys.stdout)
-                log_format = logging.Formatter(*format)
-                log_handler.setLevel(int(level))
-                log_handler.setFormatter(log_format)
-                self._log.addHandler(log_handler)
-
-            if file is not None:
-                # TODO: Add support to log into file
-                pass
-
-            self._look_up_methods = { LogLevel.DEBUG:    self._log.debug,
-                                      LogLevel.INFO:     self._log.info,
-                                      LogLevel.WARNING:  self._log.warning,
-                                      LogLevel.ERROR:    self._log.error,
-                                      LogLevel.CRITICAL: self._log.critical }
-
-            
-        def log(self, level, message):
-            self._look_up_methods[level](message)
+            # Fast access lookup table for different logging methods:
+            Logger.__instance._look_up_methods = { LogLevel.DEBUG:    logging.debug,
+                                                   LogLevel.INFO:     logging.info,
+                                                   LogLevel.WARNING:  logging.warning,
+                                                   LogLevel.ERROR:    logging.error,
+                                                   LogLevel.CRITICAL: logging.critical }
+        return Logger.__instance
 
 
-    def __init__(self, level, format = ('%(asctime)s %(levelname)5.5s - %(message)s', "%Y-%m-%d %H:%M:%S")):
-        if Logger._instance is None:
-            Logger._instance = self.__Logger(level, format)
-        
     @staticmethod
     def log(level, message):
+        """
+            Writes single <message> with log level <level> into log.
+        """
         try:
-            Logger._instance.log(level, message)
+            Logger.__instance._look_up_methods[level](message)
         except:
             pass
 
 
 class SimLogger:
     """
-        Adapter class for Logger that adds simulation time into the messages.
+        Adapter singleton class for Logger that appends messages with simulation time.
     """
-    _instance = None
 
-    class __SimLogger:
+    __instance = None
+
+    def __new__(cls, level, env, file=None, stdout=True):
         """
-            Nested class needed for singleton pattern.
+            Creates singleton instance (first call only).
         """
-        def __init__(self, level, env):
-            Logger(level, format = ('%(asctime)s %(levelname)5.5s - %(message)s', "%Y-%m-%d %H:%M:%S"))
-            self._env = env
-
-            
-        def log(self, level, message):
-            try:
-                Logger._instance.log(level, '({}) {}'.format(self._env.now, message))
-            except:
-                pass
-
-
-    def __init__(self, level, env):
-        if SimLogger._instance is None:
-            SimLogger._instance = self.__SimLogger(level, env)
+        if SimLogger.__instance is None:
+            SimLogger.__instance = object.__new__(cls)
+            SimLogger.__instance.__logger = Logger(level, stdout=stdout, file=file, format=('%(asctime)s %(levelname)5.5s - %(message)s', "%Y-%m-%d %H:%M:%S"))
+            SimLogger.__instance.__env = env
+        return SimLogger.__instance
         
     @staticmethod
     def log(level, message):
+        """
+            Writes single <message> (prefixed by simulation time) with log level <level> into log.
+        """
         try:
-            SimLogger._instance.log(level, message)
+            SimLogger.__instance.__logger.log(level, '({}) {}'.format(SimLogger.__instance.__env.now, message))
         except:
             pass
