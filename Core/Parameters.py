@@ -1,5 +1,6 @@
 import re
 import sys
+from pathlib import Path
 from Core.Exceptions import SimulationParameterException
 from Logging.Logging import Logger, LogLevel
 
@@ -50,7 +51,19 @@ class ParameterValidation:
             pass
         return None
 
+    
+    @staticmethod
+    def validate_folder(string):
+        """
 
+        """
+        try:
+            Path(string).mkdir(parents=True, exist_ok=True)
+            return Path(string).resolve()
+        except:
+            pass
+        return None
+    
 
 
 class SimulationParameter:

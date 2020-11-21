@@ -46,11 +46,12 @@ class Logger(object):
             stdout and handlers.append(logging.StreamHandler(sys.stdout))
             file is not None and handlers.append(logging.FileHandler(file))
             
-            logging.basicConfig(level=int(level), 
-                                force=True,
-                                format=format[0],
-                                datefmt=format[1],
-                                handlers=handlers)
+            if len(handlers) != 0:
+                logging.basicConfig(level=int(level), 
+                                    force=True,
+                                    format=format[0],
+                                    datefmt=format[1],
+                                    handlers=handlers)
 
             # Fast access lookup table for different logging methods:
             Logger.__instance._look_up_methods = { LogLevel.DEBUG:    logging.debug,
@@ -74,12 +75,12 @@ class Logger(object):
 
 class SimLogger:
     """
-        Adapter singleton class for Logger that appends messages with simulation time.
+        Adapter singleton class for Logger class that appends messages with simulation time.
     """
 
     __instance = None
 
-    def __new__(cls, level, env, file=None, stdout=True):
+    def __new__(cls, level, env, stdout=True, file=None):
         """
             Creates singleton instance (first call only).
         """
