@@ -32,7 +32,6 @@ Example usage:
 python main.py --conf Examples\configuration.txt
 ```
 
-
 ## Requirements
 Python >= 3.6\
 SimPy\
