@@ -55,7 +55,8 @@ class ParameterValidation:
     @staticmethod
     def validate_folder(string):
         """
-
+            Creates folder named <string> if not previously exist. Returns absolute
+            value to folder if no errors occur, otherwise returns None.
         """
         try:
             Path(string).mkdir(parents=True, exist_ok=True)

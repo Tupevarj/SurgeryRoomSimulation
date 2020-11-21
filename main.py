@@ -1,4 +1,4 @@
-from Simulations.SimulationScenarios.SimulationScenarioSurgery import SimulationScenarioSurgery
+from SimulationScenarios.SimulationScenarioSurgery import SimulationScenarioSurgery
 from Core.Exceptions import SimulationException
 
 def main():

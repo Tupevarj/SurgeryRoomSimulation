@@ -1,11 +1,13 @@
 log-level: DEBUG
+log-out: LOG_BOTH
 random-seed: 2
 simulation-time: 120
-number-of-operation-units: 1
-number-of-preparation-units: 3
+number-of-operation-units: 2
+number-of-preparation-units: 12
 number-of-recovery-units: 3
 severe-patient-portion: 0.0
 operation-time-mild: 20
 preparation-time-mild: 40
 recovery-time-mild: 40
-patient-interval: 25
+patient-interval: 1
+result-folder: Examples

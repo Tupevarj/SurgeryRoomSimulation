@@ -1,6 +1,6 @@
-from Simulations.SimulationBase import SimulationBase
-from Simulations.SimulationScenarios.Patients import PatientGenerator, PatientRecords, PatientStatus
-from Simulations.SimulationScenarios.Phases import RecoveryUnits, OperationUnits, PreparationUnits
+from Core.SimulationBase import SimulationBase
+from SimulationScenarios.Patients import PatientGenerator, PatientRecords, PatientStatus
+from SimulationScenarios.Phases import RecoveryUnits, OperationUnits, PreparationUnits
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
 from Statistics.Statistics import StatisticsCollection, ScalarStatistic, StatisticsOutConsole, TableStatistic
 from Logging.Logging import SimLogger as Logger, LogLevel
@@ -9,6 +9,11 @@ import simpy
 import argparse
 import sys
 
+"""
+
+    Inherits SimulationBase
+
+"""
 
 class SimulationScenarioSurgery(SimulationBase):
     """
