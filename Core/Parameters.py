@@ -90,7 +90,7 @@ class ParameterValidation:
         try:
             return type(string), ""
         except:
-            return None, "Given value is not type of {}.".format(enum)
+            return None, "Given value is not type of {}.".format(type)
     
 
 
@@ -136,7 +136,7 @@ class SimulationParameters():
         """
 
         # Fill with defaults:
-        self._parameters = {k: {"default": v.get_default_value()} if "*" in k else v.get_default_value() for k, v in supported_parameters.items()}
+        self._parameters = {k: v.get_default_value() for k, v in supported_parameters.items()}
 
         # Override default values with provided values:
         for i in range(len(lines)):
@@ -151,7 +151,7 @@ class SimulationParameters():
                 continue
             elif not name in supported_parameters:
                 wild_card_name = self._as_an_wildcard_parameter(name)
-                if wild_card_name not in supported_parameters:
+                if wild_card_name not in supported_parameters and len(name) != len(wild_card_name):
                     raise SimulationParameterException("Unknown parameter '{}' at line {}.".format(name, i+1))
             
             # Parse:
@@ -168,6 +168,8 @@ class SimulationParameters():
         """
             Returns value of the parameter named <p>.
         """
+        if "*" in p:
+            return {k[k.rfind('-') + 1:]: v for k, v in  self._parameters.items() if k[:k.rfind('-') + 1] + '*' == p }
         return self._parameters[p]
 
 

@@ -1,5 +1,5 @@
 from Core.SimulationBase import SimulationBase
-from SimulationScenarios.Patients import PatientGenerator, PatientRecords, PatientStatus
+from SimulationScenarios.Patients import PatientGenerator, PatientRecords, PatientStatus, PatientCondition
 from SimulationScenarios.Phases import RecoveryUnits, OperationUnits, PreparationUnits
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
 from Logging.Logging import SimLogger as Logger, LogLevel
@@ -24,14 +24,12 @@ class SimulationScenarioSurgery(SimulationBase):
         super().__init__({ "number-of-preparation-units":   SimulationParameter("Number of preparation units [1 - 100].", 10, PV.validate_integer, 1, 100),
                            "number-of-operation-units":     SimulationParameter("Number of operation units [1 - 100].", 4, PV.validate_integer, 1, 100),
                            "number-of-recovery-units":      SimulationParameter("Number of operation units [1 - 100].", 10, PV.validate_integer, 1, 100),
-                           "severe-patient-portion":        SimulationParameter("Portion of severe patients (0 => 0%, 1.0 => 100%) [0 - 1.0].", 0.5, PV.validate_float, 0, 1.0),
                            "patient-interval":              SimulationParameter("Patient arrival interval in hours.", 1.0, PV.validate_float, 0.0),
-                           "preparation-time-severe":       SimulationParameter("Mean time in hours that patient preparation takes for severe patients.", 1.0, PV.validate_float, 0.0),
-                           "preparation-time-mild":         SimulationParameter("Mean time in hours that patient preparation takes for mild patients.", 0.5, PV.validate_float, 0.0),
-                           "operation-time-severe":         SimulationParameter("Mean time in hours that operation takes for severe patients.", 5.5, PV.validate_float, 0.0),
-                           "operation-time-mild":           SimulationParameter("Mean time in hours that operation takes for mild patients.", 2.5, PV.validate_float, 0.0),
-                           "recovery-time-severe":          SimulationParameter("Mean time in hours that recovery takes for severe patients.", 48.0, PV.validate_float, 0.0),
-                           "recovery-time-mild":            SimulationParameter("Mean time in hours that recovery takes for mild patients.", 12.0, PV.validate_float, 0.0),
+                           "base-preparation-time":         SimulationParameter("Mean base time (no additional multipliers) in hours that patient preparation takes.", 20.0, PV.validate_float, 0.0),
+                           "base-operation-time":           SimulationParameter("Mean base time (no additional multipliers) in hours that operation takes.", 40.0, PV.validate_float, 0.0),
+                           "base-recovery-time":            SimulationParameter("Mean base time (no additional multipliers) in hours that recovery takes.", 40.0, PV.validate_float, 0.0),
+                           "patient-condition-*":           SimulationParameter("Different condition for patients. Array of:\n -priority (lower priorities are more urgent),\n -generator portion (0 => 0%, 1.0 => 100%),\n -mean death rate per 100 hours elapsed before OPERATED (0 => 0%, 1.0 => 100%)\n -array of 3 different service time multipliers (preparation, operation, recovery).\n", 
+                                                                                PatientCondition("[1, 1.0, 0.0, [1.0, 1.0, 1.0]]"), PV.validate_object, PatientCondition)
                          });
 
         self._statistics = {
@@ -40,6 +38,7 @@ class SimulationScenarioSurgery(SimulationBase):
                                   "number_of_prepared":      CounterStatistic("Number of patients PREPARED in total"),
                                   "number_of_operated":      CounterStatistic("Number of patients OPERATED in total"),
                                   "number_of_recovered":     CounterStatistic("Number of patients RECOVERED in total"),
+                                  "number_of_deceased":      CounterStatistic("Number of patients DECEASED in total"),
                                   "mean_time_per_prepare":   ScalarMeanStatistic("Mean time spent from WAITING to PREPARED", "hours"),
                                   "mean_time_per_operate":   ScalarMeanStatistic("Mean time spent from PREPARED to OPERATED", "hours"),
                                   "mean_time_per_patient":   ScalarMeanStatistic("Mean time spent from WAITING to RECOVERED", "hours"),
@@ -82,19 +81,21 @@ class SimulationScenarioSurgery(SimulationBase):
         patient_records = PatientRecords(self.on_patient_status_changed)
 
         self._waiting_list = []
+        
+        # Remove default value from patient-types if user provided types exists, otherwise name * to DEFAULT:
+        patient_types = self.parameters["patient-condition-*"]
+        if len(patient_types) > 1:
+            del patient_types["*"]
+        else:
+            patient_types["DEFAULT"] = patient_types.pop("*")
 
         # Create patient generator:
-        patient_generator = PatientGenerator(self.parameters["patient-interval"], self.parameters["severe-patient-portion"], patient_records,
-                                             {
-                                                 PatientStatus.IN_PREPARATION: self.parameters["preparation-time-mild"],
-                                                 PatientStatus.IN_OPERATION: self.parameters["operation-time-mild"],
-                                                 PatientStatus.IN_RECOVERY: self.parameters["recovery-time-mild"]
-                                              },
+        patient_generator = PatientGenerator(self.parameters["patient-interval"], patient_records,
                                               {
-                                                 PatientStatus.IN_PREPARATION: self.parameters["preparation-time-severe"],
-                                                 PatientStatus.IN_OPERATION: self.parameters["operation-time-severe"],
-                                                 PatientStatus.IN_RECOVERY: self.parameters["recovery-time-severe"]
-                                              })
+                                                 PatientStatus.IN_PREPARATION: self.parameters["base-preparation-time"],
+                                                 PatientStatus.IN_OPERATION: self.parameters["base-operation-time"],
+                                                 PatientStatus.IN_RECOVERY: self.parameters["base-recovery-time"]
+                                              }, patient_types)
                                               
         # Start simulation (with entry point at patient generator):
         Logger.log(LogLevel.INFO, "Starting simulation.")
@@ -104,6 +105,7 @@ class SimulationScenarioSurgery(SimulationBase):
         # Write all statistics to files:
         output = StatisticsWriterFile()
         [StatisticsCollection.output_statistic(self._statistics[file].keys(), output, self.parameters["result-folder"] / file) for file in self._statistics.keys()]
+        patient_generator.output_statistics(output, self.parameters["result-folder"] / "scalars-generator.txt")
 
         # Write scalar statistics to stdout:
         print("-" * 150)
@@ -139,14 +141,16 @@ class SimulationScenarioSurgery(SimulationBase):
         elif status == PatientStatus.IN_PREPARATION:
             self._waiting_list.remove(patient)
         elif status == PatientStatus.PREPARED:
-            StatisticsCollection.update_statistic("mean_time_per_prepare", patient.time_stamps[status] - patient.time_stamps[PatientStatus.WAITING])
             StatisticsCollection.update_statistic("number_of_prepared")
         elif status == PatientStatus.OPERATED:
-            StatisticsCollection.update_statistic("mean_time_per_operate", patient.time_stamps[status] - patient.time_stamps[PatientStatus.PREPARED])
             StatisticsCollection.update_statistic("number_of_operated")
         elif status == PatientStatus.RECOVERED:
-            StatisticsCollection.update_statistic("mean_time_per_patient", patient.time_stamps[status] - patient.time_stamps[PatientStatus.WAITING])
+            StatisticsCollection.update_statistic("mean_time_per_prepare", patient.time_stamps[PatientStatus.PREPARED] - patient.time_stamps[PatientStatus.WAITING])
+            StatisticsCollection.update_statistic("mean_time_per_operate", patient.time_stamps[PatientStatus.OPERATED] - patient.time_stamps[PatientStatus.PREPARED])
+            StatisticsCollection.update_statistic("mean_time_per_patient", patient.time_stamps[PatientStatus.RECOVERED] - patient.time_stamps[PatientStatus.WAITING])
             StatisticsCollection.update_statistic("number_of_recovered")
+        elif status == PatientStatus.DECEASED:
+            StatisticsCollection.update_statistic("number_of_deceased")
 
 
     def calculate_utilization(self, values):

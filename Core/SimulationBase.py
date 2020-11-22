@@ -1,8 +1,8 @@
 from Logging.Logging import SimLogger as Logger, LogLevel
 from Core.Parameters import SimulationParameters, SimulationParameter, ParameterValidation as PV
+from Core.Distributions import RandomGenerator as Random
 from Statistics.Statistics import StatisticsCollection
 import simpy
-import random
 from enum import IntEnum
 
 """
@@ -63,7 +63,7 @@ class SimulationBase(object):
         StatisticsCollection()
 
         # Initialize RNG:
-        random.seed(self.parameters["random-seed"])
+        Random(self.parameters["random-seed"])
 
 
     def run(self, entry_func, *args):
@@ -76,11 +76,11 @@ class SimulationBase(object):
 
     def create_resource(self, capacity):
         Logger.log(LogLevel.DEBUG, "Created simulation resource sized " + str(capacity) + ".")
-        return simpy.Resource(self._simulation, capacity=capacity)
+        return simpy.PriorityResource(self._simulation, capacity=capacity)
 
 
     def print_supported_parameters(self):
         """
             Prints all the supported parameters and default values.
         """
-        print("\n".join(["{:30} {} Defaults to: {}.".format(param[0], param[1].get_description(), param[1].get_default_value()) for param in self.supported_parameters.items()]))
+        print("\n".join(["{:30} {} Defaults to: {}.".format(param[0], param[1].get_description().replace("\n", "\n" + " "*30), param[1].get_default_value()) for param in self.supported_parameters.items()]))
