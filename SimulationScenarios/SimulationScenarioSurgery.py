@@ -2,7 +2,6 @@ from Core.SimulationBase import SimulationBase
 from SimulationScenarios.Patients import PatientGenerator, PatientRecords, PatientStatus
 from SimulationScenarios.Phases import RecoveryUnits, OperationUnits, PreparationUnits
 from Core.Parameters import SimulationParameter, ParameterValidation as PV
-from Statistics.Statistics import StatisticsCollection, ScalarStatistic, StatisticsWriterStdout, TableStatistic, StatisticsWriterFile
 from Logging.Logging import SimLogger as Logger, LogLevel
 from Statistics.Statistics import *
 from pathlib import Path
@@ -69,23 +68,15 @@ class SimulationScenarioSurgery(SimulationBase):
         command_line_args.conf.close()
 
         # Enable statistics:
-        [StatisticsCollection.add_statistic(stat[1], stat[0]) for group in self._statistics.keys() for stat in self._statistics[group].items()]
+        [StatisticsCollection.add_statistic(stat[0], stat[1]) for group in self._statistics.keys() for stat in self._statistics[group].items()]
         
         print("-" * 150)
         Logger.log(LogLevel.INFO, "Prepared simulation with configuration from file: " + str(sys.argv[-1]) + ".")
 
         # Created instances with provided parameters:
-        self._recovery = RecoveryUnits(self.create_resource(self.parameters["number-of-recovery-units"]), 
-                                  self.parameters["recovery-time-mild"], 
-                                  self.parameters["recovery-time-severe"])
-        self._operation = OperationUnits(self.create_resource(self.parameters["number-of-operation-units"]), 
-                                    self._recovery, 
-                                    self.parameters["operation-time-mild"], 
-                                    self.parameters["operation-time-severe"])
-        self._preparation = PreparationUnits(self.create_resource(self.parameters["number-of-preparation-units"]), 
-                                        self._operation, 
-                                        self.parameters["preparation-time-mild"], 
-                                        self.parameters["preparation-time-severe"])
+        self._recovery = RecoveryUnits(self.create_resource(self.parameters["number-of-recovery-units"]))
+        self._operation = OperationUnits(self.create_resource(self.parameters["number-of-operation-units"]), self._recovery)
+        self._preparation = PreparationUnits(self.create_resource(self.parameters["number-of-preparation-units"]), self._operation)
 
         # Create records:
         patient_records = PatientRecords(self.on_patient_status_changed)
@@ -93,8 +84,18 @@ class SimulationScenarioSurgery(SimulationBase):
         self._waiting_list = []
 
         # Create patient generator:
-        patient_generator = PatientGenerator(self.parameters["patient-interval"], self.parameters["severe-patient-portion"], patient_records)
-        
+        patient_generator = PatientGenerator(self.parameters["patient-interval"], self.parameters["severe-patient-portion"], patient_records,
+                                             {
+                                                 PatientStatus.IN_PREPARATION: self.parameters["preparation-time-mild"],
+                                                 PatientStatus.IN_OPERATION: self.parameters["operation-time-mild"],
+                                                 PatientStatus.IN_RECOVERY: self.parameters["recovery-time-mild"]
+                                              },
+                                              {
+                                                 PatientStatus.IN_PREPARATION: self.parameters["preparation-time-severe"],
+                                                 PatientStatus.IN_OPERATION: self.parameters["operation-time-severe"],
+                                                 PatientStatus.IN_RECOVERY: self.parameters["recovery-time-severe"]
+                                              })
+                                              
         # Start simulation (with entry point at patient generator):
         Logger.log(LogLevel.INFO, "Starting simulation.")
         self.run(patient_generator.run, self._preparation.enter_phase)
@@ -108,6 +109,7 @@ class SimulationScenarioSurgery(SimulationBase):
         print("-" * 150)
         output = StatisticsWriterStdout()
         [StatisticsCollection.output_statistic(stat, output) for stat in self._statistics["scalars.txt"].keys()]
+        patient_generator.output_statistics(output)
             
 
     def _parse_command_line_arguments(self):

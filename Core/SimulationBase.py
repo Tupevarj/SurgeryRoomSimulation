@@ -22,10 +22,10 @@ class LogOutput(IntEnum):
         Enum to simplify logging output parameter.
         (Not used by logging module).
     """
-    LOG_NONE   = 0
-    LOG_STDOUT = 2
-    LOG_FILE   = 4
-    LOG_BOTH   = 8
+    LOG_NONE      = 0
+    LOG_TO_STDOUT = 2
+    LOG_TO_FILE   = 4
+    LOG_BOTH      = 8
 
 
 
@@ -35,7 +35,7 @@ class SimulationBase(object):
     """
     
     COMMON_PARAMS = { "log-level":       SimulationParameter("Log level: DEBUG, INFO, WARNING, ERROR or CRITICAL.", "INFO", PV.validate_enum, LogLevel),
-                      "log-out":         SimulationParameter("Log output: LOG_NONE, LOG_STDOUT, LOG_FILE or LOG_BOTH. LOG_BOTH will output log into stdout and file both.", "LOG_BOTH", PV.validate_enum, LogOutput),
+                      "log-out":         SimulationParameter("Log output: LOG_NONE, LOG_TO_STDOUT, LOG_TO_FILE or LOG_BOTH. LOG_BOTH will output log into stdout and file both.", "LOG_BOTH", PV.validate_enum, LogOutput),
                       "simulation-time": SimulationParameter("Simulation time in hours.", 10, PV.validate_integer, 0),
                       "random-seed":     SimulationParameter("Seed for random number generator.", 1, PV.validate_integer, 0),
                       "result-folder":   SimulationParameter("Folder to store simulation results.", "./", PV.validate_folder),
@@ -57,8 +57,7 @@ class SimulationBase(object):
 
         # Initialize logger with requested log level and log all used parameters:
         Logger(self.parameters["log-level"], self._simulation, stdout=self.parameters["log-out"] & 10, file = self.parameters["result-folder"] / "log.log" if self.parameters["log-out"] & 12 else None)
-        Logger.log(LogLevel.INFO, "Starting simulation with following parameters:\n" + 
-                   "\n".join(["{:30} {}".format(p, self.parameters[p]) for p in self.supported_parameters]))
+        Logger.log(LogLevel.INFO, "Starting simulation with following parameters:\n" +  "\n".join(["{:30} {}".format(p, self.parameters[p]) for p in self.supported_parameters]))
 
         # Initialize statistics:
         StatisticsCollection()

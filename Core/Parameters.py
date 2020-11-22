@@ -14,7 +14,7 @@ from Core.Exceptions import SimulationParameterException
                          and list of lines containing parseable string. Syntax is:
 
                          <NAME_OF_PARAMETER1>: <VALUE_OF_PARAMETER1>
-                         <NAME_OF_PARAMETER1>: <VALUE_OF_PARAMETER1>
+                         <NAME_OF_PARAMETER2>: <VALUE_OF_PARAMETER2>
 
                          .Each parameter should be in it's own line. Line comments starting with
                          '#' character and empty spaces are allowed.

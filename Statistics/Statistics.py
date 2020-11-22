@@ -68,7 +68,7 @@ class ScalarMeanStatistic(ScalarStatisticBase):
         self._counter += 1
 
     def __str__(self):
-        return self._formatter([self._description, self._value * 1.0 / self._counter, self._unit])
+        return self._formatter([self._description, self._value * 100.0 / self._counter, self._unit])
 
 
 class TableStatistic:
@@ -148,7 +148,7 @@ class StatisticsCollection:
 
 
     @staticmethod
-    def add_statistic(statistic, name):
+    def add_statistic(name, statistic):
         """
             Adds new statistic to the collection.
         """

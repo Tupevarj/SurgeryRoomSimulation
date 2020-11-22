@@ -44,8 +44,8 @@ class SimulationPhase(metaclass=ABCMeta):
         """
         if self.next_phase is not None:
             if self.next_phase.resources is not None:
-                with self.next_phase.resources.request() as req2:
-                    yield req2
+                with self.next_phase.resources.request() as req:
+                    yield req
                     if self.next_phase is not None:
                         env.process(self.next_phase.enter_phase(env, patient))
             else:
@@ -54,51 +54,41 @@ class SimulationPhase(metaclass=ABCMeta):
 
 class PreparationUnits(SimulationPhase):
     """
-        Preparation units: prepares patient for a operation, limited places.
+        Preparation units: prepares patient for a operation, limited resources.
     """
     
-    def __init__(self, units, next_step, time_mild, time_severe):
+    def __init__(self, units, next_step):
         super().__init__(next_step, units)
-        self._time_mild = time_mild
-        self.time_severe = time_severe
 
-    
     def execute_phase(self, env, patient):
-        
         patient.update_status(PatientStatus.IN_PREPARATION, env.now)
-        yield env.timeout(self.time_severe if patient.is_severe else self._time_mild)
+        yield env.timeout(patient.preparation_time)
         patient.update_status(PatientStatus.PREPARED, env.now)
 
 
 class OperationUnits(SimulationPhase):
     """
-        Operation places: handles operation of a patient, after operation patient is moved to recovery, limited places.
+        Operation units: handles operation of a patient, after operation patient is moved to recovery, limited resources.
     """
 
-    def __init__(self, units, next_step, time_mild, time_severe):
+    def __init__(self, units, next_step):
         super().__init__(next_step, units)
-        self._time_mild = time_mild
-        self.time_severe = time_severe
-    
 
     def execute_phase(self, env, patient):
         patient.update_status(PatientStatus.IN_OPERATION, env.now)
-        yield env.timeout(self.time_severe if patient.is_severe else self._time_mild)
+        yield env.timeout(patient.operation_time)
         patient.update_status(PatientStatus.OPERATED, env.now)
 
 
 class RecoveryUnits(SimulationPhase):
     """
-        Recovery places: handles recovery of a patient, limited places.
+        Recovery units: handles recovery of a patient, limited resources.
     """
 
-    def __init__(self, units, time_mild, time_severe):
+    def __init__(self, units):
         super().__init__(None, units)
-        self._time_mild = time_mild
-        self.time_severe = time_severe
 
-    
     def execute_phase(self, env, patient):
         patient.update_status(PatientStatus.IN_RECOVERY, env.now)
-        yield env.timeout(self.time_severe if patient.is_severe else self._time_mild)
+        yield env.timeout(patient.recovery_time)
         patient.update_status(PatientStatus.RECOVERED, env.now)
