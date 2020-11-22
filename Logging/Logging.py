@@ -96,6 +96,6 @@ class SimLogger:
             Writes single <message> (prefixed by simulation time) with log level <level> into log.
         """
         try:
-            SimLogger.__instance.__logger.log(level, '({}) {}'.format(SimLogger.__instance.__env.now, message))
+            SimLogger.__instance.__logger.log(level, '({:.0f}) {}'.format(SimLogger.__instance.__env.now, message))
         except:
             pass

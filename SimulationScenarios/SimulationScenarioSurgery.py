@@ -26,12 +26,12 @@ class SimulationScenarioSurgery(SimulationBase):
                            "number-of-recovery-units":      SimulationParameter("Number of operation units [1 - 100].", 10, PV.validate_integer, 1, 100),
                            "severe-patient-portion":        SimulationParameter("Portion of severe patients (0 => 0%, 1.0 => 100%) [0 - 1.0].", 0.5, PV.validate_float, 0, 1.0),
                            "patient-interval":              SimulationParameter("Patient arrival interval in hours.", 1.0, PV.validate_float, 0.0),
-                           "preparation-time-severe":       SimulationParameter("Time in hours that patient preparation takes for severe patients.", 1.0, PV.validate_float, 0.0),
-                           "preparation-time-mild":         SimulationParameter("Time in hours that patient preparation takes for mild patients.", 0.5, PV.validate_float, 0.0),
-                           "operation-time-severe":         SimulationParameter("Time in hours that operation takes for severe patients.", 5.5, PV.validate_float, 0.0),
-                           "operation-time-mild":           SimulationParameter("Time in hours that operation takes for mild patients.", 2.5, PV.validate_float, 0.0),
-                           "recovery-time-severe":          SimulationParameter("Time in hours that recovery takes for severe patients.", 48.0, PV.validate_float, 0.0),
-                           "recovery-time-mild":            SimulationParameter("Time in hours that recovery takes for mild patients.", 12.0, PV.validate_float, 0.0),
+                           "preparation-time-severe":       SimulationParameter("Mean time in hours that patient preparation takes for severe patients.", 1.0, PV.validate_float, 0.0),
+                           "preparation-time-mild":         SimulationParameter("Mean time in hours that patient preparation takes for mild patients.", 0.5, PV.validate_float, 0.0),
+                           "operation-time-severe":         SimulationParameter("Mean time in hours that operation takes for severe patients.", 5.5, PV.validate_float, 0.0),
+                           "operation-time-mild":           SimulationParameter("Mean time in hours that operation takes for mild patients.", 2.5, PV.validate_float, 0.0),
+                           "recovery-time-severe":          SimulationParameter("Mean time in hours that recovery takes for severe patients.", 48.0, PV.validate_float, 0.0),
+                           "recovery-time-mild":            SimulationParameter("Mean time in hours that recovery takes for mild patients.", 12.0, PV.validate_float, 0.0),
                          });
 
         self._statistics = {
