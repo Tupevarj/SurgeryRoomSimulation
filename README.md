@@ -32,11 +32,14 @@ Example usage:
 python main.py --conf Examples\configuration.txt
 ```
 
-
 ## Requirements
 Python >= 3.6\
 SimPy
 
+To install SimPy, use pip:
+```
+pip install simpy
+```
 
 ## Documentation
 
