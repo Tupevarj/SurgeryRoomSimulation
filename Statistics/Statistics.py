@@ -68,7 +68,8 @@ class ScalarMeanStatistic(ScalarStatisticBase):
         self._counter += 1
 
     def __str__(self):
-        return self._formatter([self._description, self._value * 100.0 / self._counter, self._unit])
+        mean = float('nan') if self._counter == 0 else self._value * 1.0 / self._counter
+        return self._formatter([self._description, mean, self._unit])
 
 
 class TableStatistic:
