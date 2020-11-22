@@ -79,6 +79,18 @@ class ParameterValidation:
         except:
             pass
         return None, "Cannot create folder named {}.".format(string)
+
+
+    @staticmethod
+    def validate_object(string, type):
+        """
+            Trys to construct object of <type> from <string. 
+            Return object if constucting succeed, otherwise None is returned.
+        """
+        try:
+            return type(string), ""
+        except:
+            return None, "Given value is not type of {}.".format(enum)
     
 
 
@@ -124,12 +136,13 @@ class SimulationParameters():
         """
 
         # Fill with defaults:
-        self._parameters = {k:v.get_default_value() for k, v in supported_parameters.items()}
+        self._parameters = {k: {"default": v.get_default_value()} if "*" in k else v.get_default_value() for k, v in supported_parameters.items()}
 
         # Override default values with provided values:
         for i in range(len(lines)):
 
             name, value = self._split_param_line(lines[i])
+            wild_card_name = name
 
             # Validate syntax:
             if name is None:
@@ -137,10 +150,12 @@ class SimulationParameters():
                     raise SimulationParameterException("Wrong syntax at line {}.".format(i+1))
                 continue
             elif not name in supported_parameters:
-                raise SimulationParameterException("Unknown parameter '{}' at line {}.".format(name, i+1))
-
+                wild_card_name = self._as_an_wildcard_parameter(name)
+                if wild_card_name not in supported_parameters:
+                    raise SimulationParameterException("Unknown parameter '{}' at line {}.".format(name, i+1))
+            
             # Parse:
-            parsed, error = supported_parameters[name].validate(value)
+            parsed, error = supported_parameters[wild_card_name].validate(value)
 
             # Validate parsing:
             if parsed is None:
@@ -161,7 +176,7 @@ class SimulationParameters():
             Splits line according to syntax: <KEY>: <VALUE>. Ignores empty lines and single 
             line comments that start with '#' character.
         """
-        found = re.search(r"(^[^\s]+):\s*([^\s]+)\s*[\n|\#]", line)
+        found = re.search(r"^\s*([^\s\#]+):\s*([^\n\#]+(?<!\s))\s*[\n|\#]", line)
         if found is not None and len(found.groups()) == 2:
             return found.groups()[0], found.groups()[1]
         return None, None
@@ -172,4 +187,15 @@ class SimulationParameters():
             Checks if line is empty or line is commented.
         """
         return bool(re.search(r"^\s*(\#.*)|(^\n)", line))
+
+
+    def _as_an_wildcard_parameter(self, name):
+        """
+            Converts parameter name to wildcard format for comparison.
+        """
+        try:
+            return name[:name.rfind('-') + 1] + '*'
+        except:
+            return ""
+
 
