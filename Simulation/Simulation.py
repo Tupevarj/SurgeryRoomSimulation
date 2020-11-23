@@ -44,7 +44,7 @@ class Simulation():
             "number-of-operation-units":   SimulationParameter("Number of operation units [1 - 100].", 4, PV.validate_integer, 1, 100),
             "number-of-recovery-units":    SimulationParameter("Number of operation units [1 - 100].", 10, PV.validate_integer, 1, 100),
             "patient-interval":            SimulationParameter("Patient arrival interval in hours.", 1.0, PV.validate_float, 0.0),
-            "number-of-runs":              SimulationParameter("Number of simulations runs with different random seed, starting from <random-seed> and inceased by one between runs.", 1, PV.validate_integer, 0), # TODO: Move to base class!
+            "number-of-runs":              SimulationParameter("Number of simulations runs with different random seed, starting from <random-seed> and inceased by one between runs.", 1, PV.validate_integer, 0),
             "base-preparation-time":       SimulationParameter("Mean base time (no additional multipliers) in hours that patient preparation takes.", 20.0, PV.validate_float, 0.0),
             "base-operation-time":         SimulationParameter("Mean base time (no additional multipliers) in hours that operation takes.", 40.0, PV.validate_float, 0.0),
             "base-recovery-time":          SimulationParameter("Mean base time (no additional multipliers) in hours that recovery takes.", 40.0, PV.validate_float, 0.0),
@@ -61,7 +61,7 @@ class Simulation():
             "mean_time_per_prepare":     StatisticScalar(SampleScalarMean, "Mean time spent from WAITING to PREPARED", "hours"),
             "mean_time_per_operate":     StatisticScalar(SampleScalarMean, "Mean time spent from PREPARED to OPERATED", "hours"),
             "mean_time_per_patient":     StatisticScalar(SampleScalarMean, "Mean time spent from WAITING to RECOVERED", "hours"),
-            "usage_of_operation_unit":   StatisticTable(SampleTable, [["Time", "h"], "Reserved", "Total"]),                                    #self.calculate_utilization),
+            "usage_of_operation_unit":   StatisticTable(SampleTable, [["Time", "h"], ["Usage", "%"]], "Utilization of the operation theater"),
             "arrival-queue-length":      StatisticTable(SampleTable, [["Time", "h"], "Queue length"], "Patients at the arrival queue"),
             "idle-capacity-preparation": StatisticTable(SampleTable, [["Time", "h"], "Idle capacity"], "Idle capacity at prepration"),
             "rate-blocking-operations":  StatisticTable(SampleTable, [["Time", "h"], ["Blocking", "%"]], "Moving to recovery blocked"),
@@ -171,6 +171,9 @@ class Simulation():
         print(self.__statistics["idle-capacity-preparation"].get_confidence_interval_as_str("Idle capacity"))
         print(self.__statistics["rate-blocking-operations"].get_confidence_interval_as_str("Blocking"))
         print(self.__statistics["all-recovery-units-busy"].get_confidence_interval_as_str("Busy"))
+        print(self.__statistics["usage_of_operation_unit"].get_confidence_interval_as_str("Usage"))
+
+        
         
         print("-" * 150)
 
@@ -197,7 +200,7 @@ class Simulation():
         """
         while True:
             yield env.timeout(interval)
-            Statistics.update_sample("usage_of_operation_unit",   [env.now, self.__operation.resources.count, self.__operation.resources.capacity])
+            Statistics.update_sample("usage_of_operation_unit",   [env.now, self.__operation.resources.count / self.__operation.resources.capacity * 100.0])
             Statistics.update_sample("length_entrance_queue",     [env.now, len(self._waiting_list)])
             Statistics.update_sample("arrival-queue-length",      [env.now, len(self._waiting_list)])
             Statistics.update_sample("idle-capacity-preparation", [env.now, self.__preparation.resources.capacity - self.__preparation.resources.count])
