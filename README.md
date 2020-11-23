@@ -49,3 +49,7 @@ pip install simpy
 ## Statistics
 
 **TODO**
+
+## Assignment 3 results
+
+**Will be available soon..**
