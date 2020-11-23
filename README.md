@@ -46,6 +46,10 @@ pip install simpy
 **PatientGenerator** creates single patient in given interval based on **patient-interval** parameter value. Once patient is generated, patient is moved into preparation phase (**PreparationUnits**) when preparation unit has free resources. Amount of resources in prepration unit can be given with **number-of-preparation-unit** parameter. Once preparation phase is completed (based on **preparation-time-** parameters), patient is moved into operation phase (**OperationUnits**) when operation unit has free resources. Amount of resources in operation unit can be given with **number-of-operation-unit** parameter. Once operation phase is completed (based on **operation-time-** parameters), patient is moved into recovery phase (**RecoveryUnits**) when recovery unit has free resources. Amount of resources in recovery unit can be given with **number-of-recovery-unit** parameter. After recovery phase is completed, patient is released. After simulation is completed (based on **simulation-time** parameter), statistics collected during the simulation are shown. By default all statistics are enabled. More about collected statistics, see below.
 
 
+## Personal Twist
+
+Generated patients can have different conditions. Patient condition determines the urgency (priorization), risk to die during or before operation and custom service times for each phase. Different conditions and proportions of total generated number of patients can be changed in configuration file.
+
 ## Statistics
 
 **TODO**
