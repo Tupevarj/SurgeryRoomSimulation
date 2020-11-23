@@ -53,7 +53,7 @@ patients in three conditions; in MILD, SEVERE and CRITICAL conditions, with foll
 Patient in all conditions have same urgency (1), death rate (0),  operation and recovery times.\
 Patients in MILD condition have 0.7 preparation time multiplier.\
 Patients in SEVERE condition have 1.6 preparation time multiplier.\
-Patients in CRITICAL condition have 3.1 preparation time multiplier.\
+Patients in CRITICAL condition have 3.1 preparation time multiplier.
 
 In configuration file, its configured as below:
 
