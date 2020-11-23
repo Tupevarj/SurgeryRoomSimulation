@@ -54,4 +54,4 @@ Generated patients can have different conditions. Patient condition determines t
 
 ## Assignment 3 results
 
-**Will be available soon.. in Examples/Results folder**
+**Will be available soon in Examples/Results folder...**
