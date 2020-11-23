@@ -71,7 +71,8 @@ class Simulation():
             "mean-in-preparation-time":   StatisticScalar(SampleScalarMean, "Mean preparation time based on exponential distribution.", "hours"),
             "mean-in-operation-time":     StatisticScalar(SampleScalarMean, "Mean operation time based on exponential distribution.", "hours"),
             "mean-in-recovery-time":      StatisticScalar(SampleScalarMean, "Mean recovery time based on exponential distribution.", "hours"),
-            "total-number-of-patients":   StatisticScalar(SampleScalar,     "Total number of patients generated.", "")
+            "total-number-of-patients":   StatisticScalar(SampleScalar,     "Total number of patients generated.", ""),
+            
         }
 
 
@@ -171,6 +172,7 @@ class Simulation():
             print(self.__statistics["total-number-of-patients"].get_sample_as_str(r))
             [print(self.__statistics[s].get_sample_as_str(r)) for s in ["patient-portion-" + k for k in patient_types.keys()]]
             
+
 
 
         Logger.log(LogLevel.INFO, "Simulation ended successfully.")

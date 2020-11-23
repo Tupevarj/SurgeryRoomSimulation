@@ -82,9 +82,7 @@ class PatientRecords:
         # Time until patient is operated (when no waiting): 
         time_to_live = float("inf")
         if death_rate > 0:
-            div = self.__random.expovariate(1.0 / death_rate)
-            if div != 0:
-                time_to_live = (1.0 / div * (times[PatientStatus.IN_PREPARATION] + times[PatientStatus.IN_OPERATION]))
+            time_to_live = self.__random.uniform(0, (1.0 / death_rate) * (times[PatientStatus.IN_PREPARATION] + times[PatientStatus.IN_OPERATION]))
 
         self._patients.append(PatientRecord(PatientRecords._NEXT_ID, time_stamp, self._callback, urgency, times, time_to_live))
         PatientRecords._NEXT_ID += 1

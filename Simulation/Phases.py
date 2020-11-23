@@ -71,15 +71,14 @@ class PreparationUnits(SimulationPhase):
 
     def execute_phase(self, env, patient):
         patient.update_status(PatientStatus.IN_PREPARATION, env.now)
-        if patient.get_time_to_live(env.now) < patient.preparation_time:
-            yield env.timeout(max(0, min(patient.preparation_time, patient.get_time_to_live(env.now))))
+        if patient.get_time_to_live(env.now) <= patient.preparation_time:
+            yield env.timeout(max(0, patient.get_time_to_live(env.now)))
             patient.update_status(PatientStatus.DECEASED, env.now)
             return False
         else:
             yield env.timeout(patient.preparation_time)
-     
-        patient.update_status(PatientStatus.PREPARED, env.now)
-        return True
+            patient.update_status(PatientStatus.PREPARED, env.now)
+            return True
 
 
 class OperationUnits(SimulationPhase):
@@ -91,15 +90,14 @@ class OperationUnits(SimulationPhase):
 
     def execute_phase(self, env, patient):
         patient.update_status(PatientStatus.IN_OPERATION, env.now)
-        if patient.get_time_to_live(env.now) < patient.operation_time:
-            yield env.timeout(max(0, min(patient.operation_time, patient.get_time_to_live(env.now))))
+        if patient.get_time_to_live(env.now) <= patient.operation_time:
+            yield env.timeout(max(0, patient.get_time_to_live(env.now)))
             patient.update_status(PatientStatus.DECEASED, env.now)
             return False
         else:
             yield env.timeout(patient.operation_time)
-
-        patient.update_status(PatientStatus.OPERATED, env.now)
-        return True
+            patient.update_status(PatientStatus.OPERATED, env.now)
+            return True
 
 
 class RecoveryUnits(SimulationPhase):
