@@ -6,27 +6,30 @@
 
 ### Scenario 1 (3 preparation, 4 recovery):
 ------------------------------------------------------------------------------------------------
+```
 Patients at the arrival queue                                                    1.61 +- 0.99
 Idle capacity at prepration                                                      0.85 +- 0.43
 Moving to recovery blocked                                                       5.57 +- 3.66 %
 All recovery units are busy                                                      5.80 +- 3.23 %
-
+```
 
 ### Scenario 2 (3 preparation, 5 recovery):
 ------------------------------------------------------------------------------------------------
+```
 Patients at the arrival queue                                                    1.56 +- 0.95
 Idle capacity at prepration                                                      0.87 +- 0.44
 Moving to recovery blocked                                                       0.99 +- 0.92 %
 All recovery units are busy                                                      1.68 +- 1.23 %
-
+```
 
 ### Scenario 3 (4 preparation, 5 recovery):
 ------------------------------------------------------------------------------------------------
+```
 Patients at the arrival queue                                                    0.83 +- 0.56
 Idle capacity at prepration                                                      1.59 +- 0.76
 Moving to recovery blocked                                                       0.98 +- 1.06 %
 All recovery units are busy                                                      2.01 +- 1.36 %
-
+```
 
 
 ----------------------------------------------------------------------------------------------------------------
@@ -72,28 +75,28 @@ patient-condition-CRITICAL: [1, 0.05, 0.0, [3.1, 1.0, 1.0]]
 Configuration with personal twist results:
 
 ### With 3 preparation, 4 recovery
-------------------------------------------------------------------------------------------------
+```
 Patients at the arrival queue                                                    1.61 +- 0.94
 Idle capacity at prepration                                                      0.86 +- 0.43
 Moving to recovery blocked                                                       5.52 +- 3.29 %
 All recovery units are busy                                                      5.27 +- 2.84 %
-
+```
 
 ### With 3 preparation, 5 recovery:
-------------------------------------------------------------------------------------------------
+```
 Patients at the arrival queue                                                    1.59 +- 0.93
 Idle capacity at prepration                                                      0.87 +- 0.44
 Moving to recovery blocked                                                       0.72 +- 0.85 %
 All recovery units are busy                                                      1.40 +- 0.98 %
-
+```
 
 ### With 4 preparation, 5 recovery:
-------------------------------------------------------------------------------------------------
+```
 Patients at the arrival queue                                                    0.82 +- 0.53
 Idle capacity at prepration                                                      1.59 +- 0.75
 Moving to recovery blocked                                                       1.68 +- 1.33 %
 All recovery units are busy                                                      1.74 +- 1.25 %
-
+```
 
 Mostly notable change here is 'Moving to recovery blocked' statistic when there are 5 recovery
 units (scenario 3).
