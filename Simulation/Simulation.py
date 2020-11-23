@@ -50,24 +50,30 @@ class Simulation():
             "base-recovery-time":          SimulationParameter("Mean base time (no additional multipliers) in hours that recovery takes.", 40.0, PV.validate_float, 0.0),
             "patient-condition-*":         SimulationParameter("Different condition for patients. Array of:\n -priority (lower priorities are more urgent),\n -generator portion (0 => 0%, 1.0 => 100%),\n -mean death rate per 100 hours elapsed before OPERATED (0 => 0%, 1.0 => 100%)\n -array of 3 different service time multipliers (preparation, operation, recovery).\n", 
                                                                PatientCondition("[1, 1.0, 0.0, [1.0, 1.0, 1.0]]"), PV.validate_object, PatientCondition),
-         }
+        }
 
     
     __statistics = {
-            "number_of_prepared":        StatisticScalar(SampleScalar, "Number of patients PREPARED in total", ""),
-            "number_of_operated":        StatisticScalar(SampleScalar, "Number of patients OPERATED in total", ""),
-            "number_of_recovered":       StatisticScalar(SampleScalar, "Number of patients RECOVERED in total", ""),
-            "number_of_deceased":        StatisticScalar(SampleScalar, "Number of patients DECEASED in total", ""),
-            "mean_time_per_prepare":     StatisticScalar(SampleScalarMean, "Mean time spent from WAITING to PREPARED", "hours"),
-            "mean_time_per_operate":     StatisticScalar(SampleScalarMean, "Mean time spent from PREPARED to OPERATED", "hours"),
-            "mean_time_per_patient":     StatisticScalar(SampleScalarMean, "Mean time spent from WAITING to RECOVERED", "hours"),
-            "usage_of_operation_unit":   StatisticTable(SampleTable, [["Time", "h"], ["Usage", "%"]], "Utilization of the operation theater"),
-            "arrival-queue-length":      StatisticTable(SampleTable, [["Time", "h"], "Queue length"], "Patients at the arrival queue"),
-            "idle-capacity-preparation": StatisticTable(SampleTable, [["Time", "h"], "Idle capacity"], "Idle capacity at prepration"),
-            "rate-blocking-operations":  StatisticTable(SampleTable, [["Time", "h"], ["Blocking", "%"]], "Moving to recovery blocked"),
-            "all-recovery-units-busy":   StatisticTable(SampleTable, [["Time", "h"], ["Busy", "%"]], "All recovery units are busy"),
-            "length_entrance_queue":     StatisticTable(SampleTable, ["Time", "Entrance queue length"])
-                    }
+            "number_of_prepared":         StatisticScalar(SampleScalar, "Number of patients PREPARED in total", ""),
+            "number_of_operated":         StatisticScalar(SampleScalar, "Number of patients OPERATED in total", ""),
+            "number_of_recovered":        StatisticScalar(SampleScalar, "Number of patients RECOVERED in total", ""),
+            "number_of_deceased":         StatisticScalar(SampleScalar, "Number of patients DECEASED in total", ""),
+            "mean_time_per_prepare":      StatisticScalar(SampleScalarMean, "Mean time spent from WAITING to PREPARED", "hours"),
+            "mean_time_per_operate":      StatisticScalar(SampleScalarMean, "Mean time spent from PREPARED to OPERATED", "hours"),
+            "mean_time_per_patient":      StatisticScalar(SampleScalarMean, "Mean time spent from WAITING to RECOVERED", "hours"),
+            "usage_of_operation_unit":    StatisticTable(SampleTable, [["Time", "h"], ["Usage", "%"]], "Utilization of the operation theater"),
+            "arrival-queue-length":       StatisticTable(SampleTable, [["Time", "h"], "Queue length"], "Patients at the arrival queue"),
+            "idle-capacity-preparation":  StatisticTable(SampleTable, [["Time", "h"], "Idle capacity"], "Idle capacity at prepration"),
+            "rate-blocking-operations":   StatisticTable(SampleTable, [["Time", "h"], ["Blocking", "%"]], "Moving to recovery blocked"),
+            "all-recovery-units-busy":    StatisticTable(SampleTable, [["Time", "h"], ["Busy", "%"]], "All recovery units are busy"),
+            "length_entrance_queue":      StatisticTable(SampleTable, ["Time", "Entrance queue length"]),
+            "patient-generator-interval": StatisticScalar(SampleScalarMean, "True interval of generating patients", "hours"),
+            "mean-in-preparation-time":   StatisticScalar(SampleScalarMean, "Mean preparation time based on exponential distribution.", "hours"),
+            "mean-in-operation-time":     StatisticScalar(SampleScalarMean, "Mean operation time based on exponential distribution.", "hours"),
+            "mean-in-recovery-time":      StatisticScalar(SampleScalarMean, "Mean recovery time based on exponential distribution.", "hours"),
+            "total-number-of-patients":   StatisticScalar(SampleScalar,     "Total number of patients generated.", "")
+        }
+
 
 
     def __init__(self):
@@ -105,6 +111,7 @@ class Simulation():
         
 
         # Initialize statistics:
+        self.__statistics = { **{ "patient-portion-" + k: StatisticScalar(SampleScalarMean, "True portion of {} patients".format(k), "%") for k in patient_types.keys()},  **self.__statistics }
         Statistics()
         [Statistics.add_statistic(name, stat) for name, stat in self.__statistics.items()]
 
@@ -160,21 +167,21 @@ class Simulation():
             print(self.__statistics["idle-capacity-preparation"].get_sample_as_str(r, "Idle capacity"))
             print(self.__statistics["rate-blocking-operations"].get_sample_as_str(r, "Blocking"))
             print(self.__statistics["all-recovery-units-busy"].get_sample_as_str(r, "Busy"))
-            
+            print(self.__statistics["patient-generator-interval"].get_sample_as_str(r))
+            print(self.__statistics["total-number-of-patients"].get_sample_as_str(r))
+            [print(self.__statistics[s].get_sample_as_str(r)) for s in ["patient-portion-" + k for k in patient_types.keys()]]
             
 
 
         Logger.log(LogLevel.INFO, "Simulation ended successfully.")
         print("-" * 150)
-      
+
+        # Print mean values based on invidual samples:
         print(self.__statistics["arrival-queue-length"].get_confidence_interval_as_str("Queue length"))
         print(self.__statistics["idle-capacity-preparation"].get_confidence_interval_as_str("Idle capacity"))
         print(self.__statistics["rate-blocking-operations"].get_confidence_interval_as_str("Blocking"))
         print(self.__statistics["all-recovery-units-busy"].get_confidence_interval_as_str("Busy"))
         print(self.__statistics["usage_of_operation_unit"].get_confidence_interval_as_str("Usage"))
-
-        
-        
         print("-" * 150)
 
 
