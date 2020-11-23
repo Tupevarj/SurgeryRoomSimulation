@@ -1,11 +1,9 @@
 # Assignment 3
 
 ## Point estimates with condidence levels:
-----------------------------------------------------------------------------------------------------------------
 
 
 ### Scenario 1 (3 preparation, 4 recovery):
-------------------------------------------------------------------------------------------------
 ```
 Patients at the arrival queue                                                    1.61 +- 0.99
 Idle capacity at prepration                                                      0.85 +- 0.43
@@ -14,7 +12,6 @@ All recovery units are busy                                                     
 ```
 
 ### Scenario 2 (3 preparation, 5 recovery):
-------------------------------------------------------------------------------------------------
 ```
 Patients at the arrival queue                                                    1.56 +- 0.95
 Idle capacity at prepration                                                      0.87 +- 0.44
@@ -23,7 +20,6 @@ All recovery units are busy                                                     
 ```
 
 ### Scenario 3 (4 preparation, 5 recovery):
-------------------------------------------------------------------------------------------------
 ```
 Patients at the arrival queue                                                    0.83 +- 0.56
 Idle capacity at prepration                                                      1.59 +- 0.76
@@ -32,9 +28,7 @@ All recovery units are busy                                                     
 ```
 
 
-----------------------------------------------------------------------------------------------------------------
 ## Observed values differ from scenario to scenario
-----------------------------------------------------------------------------------------------------------------
 
 Moving to recovery blocked differs in 1st scenario, where there is one recovery unit less than in two
 other scenarios.
@@ -44,32 +38,30 @@ more than in two other scenarios. Also idle capacity at preparion also differs.
 
 
 
-----------------------------------------------------------------------------------------------------------------
 ## Difference between scenarios
-----------------------------------------------------------------------------------------------------------------
 
-???
-
+**???**
 
 
-----------------------------------------------------------------------------------------------------------------
+
 ## Personal twist scenario
-----------------------------------------------------------------------------------------------------------------
 
 Same expected overall utilization rate for operating room can get by changing patient generator to generate
 patients in three conditions; in MILD, SEVERE and CRITICAL conditions, with following parameters:
 
-75% of total patients are in MILD condition and 20% are in SEVERE condition and 5% are in CRITICAL condition.
-Patient in all conditions have same urgency (1), death rate (0),  operation and recovery times.
-Patients in MILD condition have 0.7 preparation time multiplier.
-Patients in SEVERE condition have 1.6 preparation time multiplier.
-Patients in CRITICAL condition have 3.1 preparation time multiplier.
+75% of total patients are in MILD condition and 20% are in SEVERE condition and 5% are in CRITICAL condition.\
+Patient in all conditions have same urgency (1), death rate (0),  operation and recovery times.\
+Patients in MILD condition have 0.7 preparation time multiplier.\
+Patients in SEVERE condition have 1.6 preparation time multiplier.\
+Patients in CRITICAL condition have 3.1 preparation time multiplier.\
 
 In configuration file, its configured as below:
 
+```
 patient-condition-MILD:     [1, 0.75, 0.0, [0.7, 1.0, 1.0]]
 patient-condition-SEVERE:   [1, 0.20, 0.0, [1.6, 1.0, 1.0]]
 patient-condition-CRITICAL: [1, 0.05, 0.0, [3.1, 1.0, 1.0]]
+```
 
 
 Configuration with personal twist results:
