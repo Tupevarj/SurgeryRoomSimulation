@@ -1,6 +1,6 @@
-from Logging.Logging import SimLogger as Logger, LogLevel
+from Core.Logging.Logging import SimLogger as Logger, LogLevel
 from Core.Distributions import RandomGenerator as Random
-from Statistics.Statistics import *
+from Core.Statistics.Statistics import *
 from enum import Enum
 import ast
 import sys
@@ -114,15 +114,20 @@ class PatientGenerator:
             self.__generator_table.append([probability_accum, k])
         self.__generator_table[-1][0] = 1.0
 
-        self.__statistics = { **{
-                "patient-generator-interval": ScalarMeanStatistic("True interval of generating patients", "hours"),
-                "mean-in-preparation-time": ScalarMeanStatistic("Mean preparation time based on exponential distribution.", "hours"),
-                "mean-in-operation-time": ScalarMeanStatistic("Mean operation time based on exponential distribution.", "hours"),
-                "mean-in-recovery-time": ScalarMeanStatistic("Mean recovery time based on exponential distribution.", "hours"),
-                "total-number-of-patients": CounterStatistic("Total number of patients generated.", "")
-        }, **{ "patient-portion-" + k: ScalarMeanStatistic("True portion of {} patients".format(k), "%") for k in self.__patient_types.keys()}}
+        #self.__statistics = {  **{ "patient-portion-" + k: ScalarMeanStatistic("True portion of {} patients".format(k), "%") for k in self.__patient_types.keys()}, 
+        #                       **{
+        #                           "patient-generator-interval": ScalarMeanStatistic("True interval of generating patients", "hours"),
+        #                           "mean-in-preparation-time": ScalarMeanStatistic("Mean preparation time based on exponential distribution.", "hours"),
+        #                           "mean-in-operation-time": ScalarMeanStatistic("Mean operation time based on exponential distribution.", "hours"),
+        #                           "mean-in-recovery-time": ScalarMeanStatistic("Mean recovery time based on exponential distribution.", "hours"),
+        #                           "total-number-of-patients": CounterStatistic("Total number of patients generated.", "")
+        #                    }}
 
-        [StatisticsCollection.add_statistic(name, stat) for name, stat in self.__statistics.items()]
+        #try:
+        #    [StatisticsCollection.register_statistic(name) for name, stat in self.__statistics.items()]
+        #    [StatisticsCollection.add_statistic(name, stat) for name, stat in self.__statistics.items()]
+        #except:
+        #    pass
 
 
     def run(self, env, next_step):
@@ -139,7 +144,7 @@ class PatientGenerator:
             yield env.timeout(timeout)
 
             # Update statistic:
-            StatisticsCollection.update_statistic("patient-generator-interval", timeout)
+            #StatisticsCollection.update_statistic("patient-generator-interval", timeout)
             
 
     def _generate_new_patient(self, env):
@@ -157,12 +162,12 @@ class PatientGenerator:
           PatientStatus.IN_RECOVERY:    self.__random.expovariate(1.0 / (self.__base_times[PatientStatus.IN_RECOVERY]) * self.__patient_types[condition].service_times[2])
         }
 
-        # Update statistic:
-        [StatisticsCollection.update_statistic("patient-portion-" + k, 100.0 if k == condition else 0.0) for k in self.__patient_types.keys()]
-        StatisticsCollection.update_statistic("mean-in-preparation-time", times[PatientStatus.IN_PREPARATION])
-        StatisticsCollection.update_statistic("mean-in-operation-time", times[PatientStatus.IN_OPERATION])
-        StatisticsCollection.update_statistic("mean-in-recovery-time", times[PatientStatus.IN_RECOVERY])
-        StatisticsCollection.update_statistic("total-number-of-patients")
+        ## Update statistic:
+        #[StatisticsCollection.update_statistic2("patient-portion-" + k, 100.0 if k == condition else 0.0) for k in self.__patient_types.keys()]
+        #StatisticsCollection.update_statistic2("mean-in-preparation-time", times[PatientStatus.IN_PREPARATION])
+        #StatisticsCollection.update_statistic2("mean-in-operation-time", times[PatientStatus.IN_OPERATION])
+        #StatisticsCollection.update_statistic2("mean-in-recovery-time", times[PatientStatus.IN_RECOVERY])
+        #StatisticsCollection.update_statistic2("total-number-of-patients")
 
         # Add patient to patient records:
         patient = self._patients.add_patient(self.__patient_types[condition].urgency, self.__patient_types[condition].death_rate, times, env.now)
@@ -174,5 +179,6 @@ class PatientGenerator:
         """
             Outputs statistics collected by the patient generator.
         """
-        StatisticsCollection.output_statistic(self.__statistics.keys(), output, *args)
+        pass
+        #StatisticsCollection.output_statistic(self.__statistics.keys(), output, *args)
 

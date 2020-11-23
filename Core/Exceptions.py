@@ -1,3 +1,8 @@
+
+"""
+    Simulation exceptions.
+"""
+
 class SimulationException(Exception):
     """
         Base class for simulation exceptions.

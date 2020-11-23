@@ -1,5 +1,13 @@
 from abc import ABCMeta, abstractmethod
-from SimulationScenarios.Patients import PatientRecord, PatientStatus
+from Simulation.Patients import PatientRecord, PatientStatus
+
+"""
+    Different simulation phases:
+    - Preparation
+    - Operation
+    - Recovery
+
+"""
 
 class SimulationPhase(metaclass=ABCMeta):
     """
@@ -35,7 +43,6 @@ class SimulationPhase(metaclass=ABCMeta):
                 if cont:
                     # Need to reserve resources until next phase is free:
                     yield env.process(self._enter_next_phase(env, priority, patient))
-
         else:
             cont = yield env.process(self.execute_phase(env, patient))
             if cont:
@@ -50,8 +57,7 @@ class SimulationPhase(metaclass=ABCMeta):
             if self.next_phase.resources is not None:
                 with self.next_phase.resources.request(priority=priority) as req:
                     yield req
-                    if self.next_phase is not None:
-                        env.process(self.next_phase.enter_phase(env, priority, patient))
+                    env.process(self.next_phase.enter_phase(env, priority, patient))
             else:
                 yield env.process(self.next_phase.enter_phase(env, priority, patient))
 
@@ -60,7 +66,6 @@ class PreparationUnits(SimulationPhase):
     """
         Preparation units: prepares patient for a operation, limited resources.
     """
-    
     def __init__(self, units, next_step):
         super().__init__(next_step, units)
 
@@ -81,7 +86,6 @@ class OperationUnits(SimulationPhase):
     """
         Operation units: handles operation of a patient, after operation patient is moved to recovery, limited resources.
     """
-
     def __init__(self, units, next_step):
         super().__init__(next_step, units)
 
@@ -102,7 +106,6 @@ class RecoveryUnits(SimulationPhase):
     """
         Recovery units: handles recovery of a patient, limited resources.
     """
-
     def __init__(self, units):
         super().__init__(None, units)
 

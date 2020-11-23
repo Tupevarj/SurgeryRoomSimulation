@@ -18,6 +18,10 @@ from Core.Exceptions import SimulationParameterException
 
                          .Each parameter should be in it's own line. Line comments starting with
                          '#' character and empty spaces are allowed.
+
+    Parameters that end with '-*' are considered as wild card parameters, where user may provide 
+    parameter name by replacing the '*' character.
+
 """
 
 class ParameterValidation:

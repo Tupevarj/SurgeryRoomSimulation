@@ -1,9 +1,9 @@
-from SimulationScenarios.SimulationScenarioSurgery import SimulationScenarioSurgery
+from Simulation.Simulation import Simulation
 from Core.Exceptions import SimulationException
 
 def main():
     try:
-        simulation = SimulationScenarioSurgery()
+        simulation = Simulation()
     except SimulationException as e:
         print(e)
         print("Critical error occured, see above, exiting simulation..")
@@ -13,14 +13,22 @@ def main():
     TODO: Add simulator multi dispatcher (not funny to manyally change configuration file for each simulation).
 
     
-    -------------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------
      1.0 Simulator structure
-    -------------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------
 
+
+    Simulation core is divided into three main modules: logging, statistics and 
+    parameters modules. Mostly these modules can be considered as black boxes. 
+    Basic functionality of these modules is listed below.
     
-    -------------------------------------------------------------------------------
-        1.1 Logging module
-    -------------------------------------------------------------------------------
+    Most of the assigment specific code is located in Simulation folder.
+    This is decribed in chapter 1.4.
+    
+    
+    -----------------------------------------------------------------------------------------
+        1.1 Core/Logging module
+    -----------------------------------------------------------------------------------------
 
     Basic logging functionality with different parameterized log levels;
     either logged into stdout or file. Usage through singleton class:
@@ -29,7 +37,7 @@ def main():
     
     
     -------------------------------------------------------------------------------
-        1.2 Statistics module
+        1.2 Core/Statistics module
     -------------------------------------------------------------------------------
 
     Supports scalar and table (csv) statistics. Statistics are managed through 
@@ -40,23 +48,23 @@ def main():
     StatisticsCollection.output_statistic(<StatisticName>, <StatisticsOutput>)
     
     
-    -------------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------
         1.3 Core/Parameters module
-    -------------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------
 
     
-    -------------------------------------------------------------------------------
-        1.4 Simulation scenarios: TIES481 Surgery facility
-    -------------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------
+        1.4 Simulation: TIES481 Surgery facility
+    -----------------------------------------------------------------------------------------
 
     Phases
     Patients
-    SimulationScenarioSurgery (main script)
+    Simulation (main script)
 
     
-    ---------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------
      2.0 Personal twist
-    ---------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------
 
     Generated patients can have different conditions. Patient condition is used to
     determine:
@@ -82,10 +90,16 @@ def main():
     
 
     
-    ---------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------
      3.0 Requiremets + Usage
-    ---------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------
 
+    Python >= 3.6
+    SimPy
+
+    To install SimPy, use pip (run following command in command line):
+
+    pip install simpy
 
 
 """
