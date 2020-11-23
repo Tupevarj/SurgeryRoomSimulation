@@ -1,0 +1,46 @@
+# NOTE: THIS IS CONFIGURATION WITH PERSONAL TWIST!
+
+log-level: INFO 				# Only messages with log level INFO or higher are output.
+log-out: LOG_BOTH				# Logs to stdout and log.log file.
+result-folder: Examples/Configuration1pt	# Folder where results are stored (absolute or relative to current).
+simulation-time: 1000				# Simulation time in hours.
+patient-interval: 25				# Mean time between patients arriving.
+random-seed: 3
+number-of-runs: 20
+
+
+# Number of units in each phase:
+number-of-operation-units: 1
+number-of-preparation-units: 3
+number-of-recovery-units: 4
+
+# Base service times:
+base-preparation-time: 40
+base-operation-time: 20
+base-recovery-time: 40   
+
+
+# Personal twist: different patient conditions.
+# New conditions can be created by adding new parameters with the following format:
+#
+#      patient-condition-<NAME_OF_THE_CONDITION> : <VALUE>
+#
+# , where <VALUE> is array with the following elements:
+#   - Severity level. Lower value has higher priorization and thus higher urgency.
+#   - Portion of total generated patients. Sum of proportions is normalized to match 100%.
+#   - Death rate. Probability for patient to die in elapsed time that is equilivalent with
+#                 preparation time + operation time (when multipliers applied).
+#   - Array of multipliers for base service times.
+#
+# For example value: [0, 0.10, 0.001, [0.1, 1.0, 2.0]] 
+#
+# , has highest priority of all, 10% probability that generated patient has this condition,
+#   probability of death is 0.1% before operated (when no waiting),
+#   preparation time is 10% of "base-preparation-time" parameter value, etc..
+#
+patient-condition-MILD:     [1, 0.75, 0.0, [0.7, 1.0, 1.0]]
+patient-condition-SEVERE:   [1, 0.20, 0.0, [1.6, 1.0, 1.0]]
+patient-condition-CRITICAL: [1, 0.05, 0.0, [3.1, 1.0, 1.0]]
+
+
+
