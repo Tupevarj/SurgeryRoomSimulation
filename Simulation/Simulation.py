@@ -65,6 +65,7 @@ class Simulation():
             "arrival-queue-length":      StatisticTable(SampleTable, [["Time", "h"], "Queue length"], "Patients at the arrival queue"),
             "idle-capacity-preparation": StatisticTable(SampleTable, [["Time", "h"], "Idle capacity"], "Idle capacity at prepration"),
             "rate-blocking-operations":  StatisticTable(SampleTable, [["Time", "h"], ["Blocking", "%"]], "Moving to recovery blocked"),
+            "all-recovery-units-busy":   StatisticTable(SampleTable, [["Time", "h"], ["Busy", "%"]], "All recovery units are busy"),
             "length_entrance_queue":     StatisticTable(SampleTable, ["Time", "Entrance queue length"])
                     }
 
@@ -158,7 +159,10 @@ class Simulation():
             print(self.__statistics["arrival-queue-length"].get_sample_as_str(r, "Queue length"))
             print(self.__statistics["idle-capacity-preparation"].get_sample_as_str(r, "Idle capacity"))
             print(self.__statistics["rate-blocking-operations"].get_sample_as_str(r, "Blocking"))
+            print(self.__statistics["all-recovery-units-busy"].get_sample_as_str(r, "Busy"))
             
+            
+
 
         Logger.log(LogLevel.INFO, "Simulation ended successfully.")
         print("-" * 150)
@@ -166,6 +170,7 @@ class Simulation():
         print(self.__statistics["arrival-queue-length"].get_confidence_interval_as_str("Queue length"))
         print(self.__statistics["idle-capacity-preparation"].get_confidence_interval_as_str("Idle capacity"))
         print(self.__statistics["rate-blocking-operations"].get_confidence_interval_as_str("Blocking"))
+        print(self.__statistics["all-recovery-units-busy"].get_confidence_interval_as_str("Busy"))
         
         print("-" * 150)
 
@@ -196,8 +201,8 @@ class Simulation():
             Statistics.update_sample("length_entrance_queue",     [env.now, len(self._waiting_list)])
             Statistics.update_sample("arrival-queue-length",      [env.now, len(self._waiting_list)])
             Statistics.update_sample("idle-capacity-preparation", [env.now, self.__preparation.resources.capacity - self.__preparation.resources.count])
+            Statistics.update_sample("all-recovery-units-busy",   [env.now, 100 if self.__recovery.resources.capacity == self.__recovery.resources.count else 0])
         
-
 
     def on_patient_status_changed(self, status, patient, time_stamp):
         """
