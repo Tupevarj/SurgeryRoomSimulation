@@ -1,7 +1,7 @@
-log-level: WARNING				# Only messages with log level INFO or higher are output.
+log-level: INFO 				# Only messages with log level INFO or higher are output.
 log-out: LOG_BOTH				# Logs to stdout and log.log file.
-result-folder: Examples/Configuration1		# Folder where results are stored (absolute or relative to current).
-simulation-time: 1000				# Simulation time in hours.
+result-folder: Examples/Configuration3		# Folder where results are stored (absolute or relative to current).
+simulation-time: 10000				# Simulation time in hours.
 patient-interval: 25				# Mean time between patients arriving.
 random-seed: 3
 number-of-runs: 20
@@ -9,8 +9,8 @@ number-of-runs: 20
 
 # Number of units in each phase:
 number-of-operation-units: 1
-number-of-preparation-units: 3
-number-of-recovery-units: 4
+number-of-preparation-units: 4
+number-of-recovery-units: 5
 
 # Base service times:
 base-preparation-time: 40
