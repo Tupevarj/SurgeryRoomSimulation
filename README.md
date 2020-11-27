@@ -50,8 +50,7 @@ pip install simpy
 
 Generated patients can have different conditions. Patient condition determines the urgency (priorization), risk to die during or before operation and custom service times for each phase. Different conditions and proportions of total generated number of patients can be changed in configuration file.
 
-**TODO**
 
 ## Assignment 3 results
 
-**Will be available soon.. in Examples/Results folder**
+**Will be available soon in Examples/Results folder...**
