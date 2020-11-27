@@ -3,6 +3,7 @@ from Simulation.Patients import PatientGenerator, PatientRecords, PatientStatus,
 from Simulation.Phases import RecoveryUnits, OperationUnits, PreparationUnits
 from Core.Logging.Logging import SimLogger as Logger, LogLevel
 from Core.Distributions import RandomGenerator as Random
+from Core.Distributions import Distribution, Rng
 from Core.Statistics.Statistics import *
 from pathlib import Path
 from enum import IntEnum
@@ -26,11 +27,6 @@ class LogOutput(IntEnum):
     LOG_BOTH      = 8
 
 
-class Distribution(IntEnum):
-    EXPONENTIAL = 0,
-    UNIFORM     = 1
-
-
 class Simulation():
     """
         Simulation scenario for TIES481 course surgery case.
@@ -44,16 +40,15 @@ class Simulation():
             "sample-time":                 SimulationParameter("Length of single sample in hours.", 1000, PV.validate_integer, 0),
             "sample-count":                SimulationParameter("Number of samples int total.", 20, PV.validate_integer, 0),
             "random-seed":                 SimulationParameter("Start seed for random number generator.", 1, PV.validate_integer, 0),
-            "random-distribution":         SimulationParameter("Distribution used in random number generator.", "EXPONENTIAL", PV.validate_enum, Distribution),
             "result-folder":               SimulationParameter("Folder to store simulation results.", "./", PV.validate_folder),
             "number-of-preparation-units": SimulationParameter("Number of preparation units [1 - 100].", 10, PV.validate_integer, 1, 100),
             "number-of-operation-units":   SimulationParameter("Number of operation units [1 - 100].", 4, PV.validate_integer, 1, 100),
             "number-of-recovery-units":    SimulationParameter("Number of operation units [1 - 100].", 10, PV.validate_integer, 1, 100),
-            "patient-interval":            SimulationParameter("Patient arrival interval in hours.", 1.0, PV.validate_float, 0.0),
+            "patient-interval":            SimulationParameter("Patient arrival rate in hours. Format: [\"EXPONENTIAL\", <mean>] or [\"UNIFORM\", <min>, <max>].", ["EXPONENTIAL", 25.0], PV.validate_object, Rng),
             "number-of-runs":              SimulationParameter("Number of simulations runs with different random seed, starting from <random-seed> and inceased by one between runs.", 1, PV.validate_integer, 0),
-            "base-preparation-time":       SimulationParameter("Mean base time (no additional multipliers) in hours that patient preparation takes.", 20.0, PV.validate_float, 0.0),
-            "base-operation-time":         SimulationParameter("Mean base time (no additional multipliers) in hours that operation takes.", 40.0, PV.validate_float, 0.0),
-            "base-recovery-time":          SimulationParameter("Mean base time (no additional multipliers) in hours that recovery takes.", 40.0, PV.validate_float, 0.0),
+            "base-preparation-time":       SimulationParameter("Base time (no additional multipliers) in hours that preparation takes. Format: [\"EXPONENTIAL\", <mean>] or [\"UNIFORM\", <min>, <max>].", ["EXPONENTIAL", 20.0], PV.validate_object, Rng),
+            "base-operation-time":         SimulationParameter("Base time (no additional multipliers) in hours that operation takes. Format: [\"EXPONENTIAL\", <mean>] or [\"UNIFORM\", <min>, <max>]. ", ["EXPONENTIAL", 40.0], PV.validate_object, Rng),
+            "base-recovery-time":          SimulationParameter("Base time (no additional multipliers) in hours that recovery takes. Format: [\"EXPONENTIAL\", <mean>] or [\"UNIFORM\", <min>, <max>].", ["EXPONENTIAL", 40.0], PV.validate_object, Rng),
             "patient-condition-*":         SimulationParameter("Different condition for patients. Array of:\n -priority (lower priorities are more urgent),\n -generator portion (0 => 0%, 1.0 => 100%),\n -mean death rate per 100 hours elapsed before OPERATED (0 => 0%, 1.0 => 100%)\n -array of 3 different service time multipliers (preparation, operation, recovery).\n", 
                                                                PatientCondition("[1, 1.0, 0.0, [1.0, 1.0, 1.0]]"), PV.validate_object, PatientCondition),
         }
@@ -122,7 +117,7 @@ class Simulation():
         for r in range(0, self.__parameters["number-of-runs"]):
             
             print("-" * 150)
-            Logger.log(LogLevel.INFO, "Starting simulation round {}.".format(r))
+            Logger.log(LogLevel.INFO, "Starting simulation run {}.".format(r))
         
             # Initialize RNG:
             Random(self.__parameters["random-seed"] + r)
@@ -139,10 +134,10 @@ class Simulation():
             self.__arrival_queue = []
         
             # Create patient generator:
-            patient_generator = PatientGenerator(self.__parameters["patient-interval"], patient_records, {
-                                                     PatientStatus.IN_PREPARATION: self.__parameters["base-preparation-time"],
-                                                     PatientStatus.IN_OPERATION:   self.__parameters["base-operation-time"],
-                                                     PatientStatus.IN_RECOVERY:    self.__parameters["base-recovery-time"]
+            patient_generator = PatientGenerator(self.__parameters["patient-interval"].initialize(), patient_records, {
+                                                     PatientStatus.IN_PREPARATION: self.__parameters["base-preparation-time"].initialize(),
+                                                     PatientStatus.IN_OPERATION:   self.__parameters["base-operation-time"].initialize(),
+                                                     PatientStatus.IN_RECOVERY:    self.__parameters["base-recovery-time"].initialize()
                                                   }, self.__patient_types)
                                               
             # Add monitor process:

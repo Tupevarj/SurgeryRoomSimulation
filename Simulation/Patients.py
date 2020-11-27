@@ -72,7 +72,7 @@ class PatientRecords:
     def __init__(self, patient_status_changed_callback):
         self._patients = []
         self._callback = patient_status_changed_callback
-        self.__random = Random.new_generator()     # Independent RNG
+        self.__random = Random.new_generator()     # Independent RNG to randomize patient's time to live.
 
 
     def add_patient(self, urgency, death_rate, times, time_stamp):
@@ -100,7 +100,7 @@ class PatientGenerator:
         self._patients = patient_records
         self.__patient_types = patient_types
         self.__base_times = base_times
-        self.__random = Random.new_generator()     # Independent RNG
+        self.__random = Random.new_generator()     # Independent RNG to randomize patient condition.
 
         sum_of_probabilities = sum(self.__patient_types[k].portion for k in self.__patient_types.keys())
 
@@ -124,7 +124,7 @@ class PatientGenerator:
             env.process(next_step(env, patient.priority, patient))
 
             # Get interval based expotential distribution:
-            timeout = self.__random.expovariate(1.0 / self._interval)
+            timeout = self._interval.next()
             yield env.timeout(timeout)
 
             # Update statistic:
@@ -141,9 +141,9 @@ class PatientGenerator:
         random_uniform = self.__random.uniform(0.0, 1.0)
         condition = next(t for t in self.__generator_table if random_uniform < t[0])[1]
         times = {
-          PatientStatus.IN_PREPARATION: self.__random.expovariate(1.0 / (self.__base_times[PatientStatus.IN_PREPARATION])) * self.__patient_types[condition].service_times[0],
-          PatientStatus.IN_OPERATION:   self.__random.expovariate(1.0 / (self.__base_times[PatientStatus.IN_OPERATION])) * self.__patient_types[condition].service_times[1],
-          PatientStatus.IN_RECOVERY:    self.__random.expovariate(1.0 / (self.__base_times[PatientStatus.IN_RECOVERY]) * self.__patient_types[condition].service_times[2])
+          PatientStatus.IN_PREPARATION: self.__base_times[PatientStatus.IN_PREPARATION].next() * self.__patient_types[condition].service_times[0],
+          PatientStatus.IN_OPERATION:   self.__base_times[PatientStatus.IN_OPERATION].next() * self.__patient_types[condition].service_times[1],
+          PatientStatus.IN_RECOVERY:    self.__base_times[PatientStatus.IN_RECOVERY].next() * self.__patient_types[condition].service_times[2]
         }
 
         # Update statistic:
