@@ -1,10 +1,12 @@
 log-level: INFO 				# Only messages with log level INFO or higher are output.
 log-out: LOG_BOTH				# Logs to stdout and log.log file.
 result-folder: Examples/Configuration1		# Folder where results are stored (absolute or relative to current).
-simulation-time: 1000				# Simulation time in hours.
-patient-interval: 25				# Mean time between patients arriving.
+#simulation-time: 1000				# Simulation time in hours. DEPRECATED
+patient-interval: ["EXPONENTIAL", 25]		# Distribution (either "UNIFORM" or "EXPONENTIAL" and average if 
+                                                # "EXPONENTIAL" and min and max if "UNIFORM.
+
 random-seed: 3
-number-of-runs: 20
+number-of-runs: 1
 
 
 # Number of units in each phase:
@@ -13,9 +15,9 @@ number-of-preparation-units: 3
 number-of-recovery-units: 4
 
 # Base service times:
-base-preparation-time: 40
-base-operation-time: 20
-base-recovery-time: 40   
+base-preparation-time: ["EXPONENTIAL", 40]
+base-operation-time: ["EXPONENTIAL", 20]
+base-recovery-time: ["UNIFORM", 40, 50]
 
 
 # Personal twist: different patient conditions.
@@ -39,5 +41,3 @@ base-recovery-time: 40
 patient-condition-MILD:     [2, 1.0,  0.0,   [1.0, 1.0, 1.0]]
 #patient-condition-SEVERE:   [1, 0.0, 0.005, [1.2, 1.2, 2.0]]
 #patient-condition-CRITICAL: [0, 0.0, 0.1,  [0.4, 1.5, 3.0]]
-
-
