@@ -1,14 +1,13 @@
+from Core.Parameters.Parameters import SimulationParameter, SimulationParameters, ParameterValidation as PV
 from Simulation.Patients import PatientGenerator, PatientRecords, PatientStatus, PatientCondition
 from Simulation.Phases import RecoveryUnits, OperationUnits, PreparationUnits
-from Core.Parameters.Parameters import SimulationParameter, SimulationParameters, ParameterValidation as PV
-from Core.Distributions import RandomGenerator as Random
 from Core.Logging.Logging import SimLogger as Logger, LogLevel
+from Core.Distributions import RandomGenerator as Random
 from Core.Statistics.Statistics import *
-from enum import IntEnum
-import simpy
 from pathlib import Path
-import simpy
+from enum import IntEnum
 import argparse
+import simpy
 import sys
 
 """
@@ -27,18 +26,25 @@ class LogOutput(IntEnum):
     LOG_BOTH      = 8
 
 
+class Distribution(IntEnum):
+    EXPONENTIAL = 0,
+    UNIFORM     = 1
+
 
 class Simulation():
     """
         Simulation scenario for TIES481 course surgery case.
 
     """
-
     __supported_parameters = {
             "log-level":                   SimulationParameter("Log level: DEBUG, INFO, WARNING, ERROR or CRITICAL.", "INFO", PV.validate_enum, LogLevel),
             "log-out":                     SimulationParameter("Log output: LOG_NONE, LOG_TO_STDOUT, LOG_TO_FILE or LOG_BOTH. LOG_BOTH will output log into stdout and file both.", "LOG_BOTH", PV.validate_enum, LogOutput),
-            "simulation-time":             SimulationParameter("Simulation time in hours.", 10, PV.validate_integer, 0),
+            "sample-warm-up":              SimulationParameter("Time in hours before first sample is taken.", 1000, PV.validate_integer, 0),
+            "sample-interval":             SimulationParameter("Timeout in hours between single samples.", 1000, PV.validate_integer, 0),
+            "sample-time":                 SimulationParameter("Length of single sample in hours.", 1000, PV.validate_integer, 0),
+            "sample-count":                SimulationParameter("Number of samples int total.", 20, PV.validate_integer, 0),
             "random-seed":                 SimulationParameter("Start seed for random number generator.", 1, PV.validate_integer, 0),
+            "random-distribution":         SimulationParameter("Distribution used in random number generator.", "EXPONENTIAL", PV.validate_enum, Distribution),
             "result-folder":               SimulationParameter("Folder to store simulation results.", "./", PV.validate_folder),
             "number-of-preparation-units": SimulationParameter("Number of preparation units [1 - 100].", 10, PV.validate_integer, 1, 100),
             "number-of-operation-units":   SimulationParameter("Number of operation units [1 - 100].", 4, PV.validate_integer, 1, 100),
@@ -52,36 +58,31 @@ class Simulation():
                                                                PatientCondition("[1, 1.0, 0.0, [1.0, 1.0, 1.0]]"), PV.validate_object, PatientCondition),
         }
 
-    
     __statistics = {
-            "number_of_prepared":         StatisticScalar(SampleScalar, "Number of patients PREPARED in total", ""),
-            "number_of_operated":         StatisticScalar(SampleScalar, "Number of patients OPERATED in total", ""),
-            "number_of_recovered":        StatisticScalar(SampleScalar, "Number of patients RECOVERED in total", ""),
-            "number_of_deceased":         StatisticScalar(SampleScalar, "Number of patients DECEASED in total", ""),
-            "mean_time_per_prepare":      StatisticScalar(SampleScalarMean, "Mean time spent from WAITING to PREPARED", "hours"),
-            "mean_time_per_operate":      StatisticScalar(SampleScalarMean, "Mean time spent from PREPARED to OPERATED", "hours"),
-            "mean_time_per_patient":      StatisticScalar(SampleScalarMean, "Mean time spent from WAITING to RECOVERED", "hours"),
-            "usage_of_operation_unit":    StatisticTable(SampleTable, [["Time", "h"], ["Usage", "%"]], "Utilization of the operation theater"),
-            "arrival-queue-length":       StatisticTable(SampleTable, [["Time", "h"], "Queue length"], "Patients at the arrival queue"),
-            "idle-capacity-preparation":  StatisticTable(SampleTable, [["Time", "h"], "Idle capacity"], "Idle capacity at prepration"),
-            "rate-blocking-operations":   StatisticTable(SampleTable, [["Time", "h"], ["Blocking", "%"]], "Moving to recovery blocked"),
-            "all-recovery-units-busy":    StatisticTable(SampleTable, [["Time", "h"], ["Busy", "%"]], "All recovery units are busy"),
-            "length_entrance_queue":      StatisticTable(SampleTable, ["Time", "Entrance queue length"]),
-            "patient-generator-interval": StatisticScalar(SampleScalarMean, "True interval of generating patients", "hours"),
-            "mean-in-preparation-time":   StatisticScalar(SampleScalarMean, "Mean preparation time based on exponential distribution.", "hours"),
-            "mean-in-operation-time":     StatisticScalar(SampleScalarMean, "Mean operation time based on exponential distribution.", "hours"),
-            "mean-in-recovery-time":      StatisticScalar(SampleScalarMean, "Mean recovery time based on exponential distribution.", "hours"),
-            "total-number-of-patients":   StatisticScalar(SampleScalar,     "Total number of patients generated.", ""),
-            
+            "number_of_prepared":         SampleCollection(desc_l="Number of patients PREPARED in total",         desc_s="total_prepared",       type=Counter),
+            "number_of_operated":         SampleCollection(desc_l="Number of patients OPERATED in total",         desc_s="total_operated",       type=Counter),
+            "number_of_recovered":        SampleCollection(desc_l="Number of patients RECOVERED in total",        desc_s="total_recoved",        type=Counter),
+            "number_of_deceased":         SampleCollection(desc_l="Number of patients DECEASED in total",         desc_s="total_deceased",       type=Counter),
+            "total-number-of-patients":   SampleCollection(desc_l="Total number of patients generated.",          desc_s="total_patients",       type=Counter),
+            "patient-generator-interval": SampleCollection(desc_l="True interval of generating patients",         desc_s="interval_patients",    unit="hours"),
+            "mean_time_per_prepare":      SampleCollection(desc_l="Mean time spent from WAITING to PREPARED",     desc_s="from_wait_to_prep",    unit="hours"),
+            "mean_time_per_operate":      SampleCollection(desc_l="Mean time spent from PREPARED to OPERATED",    desc_s="from_prep_to_oper",    unit="hours"),
+            "mean_time_per_patient":      SampleCollection(desc_l="Mean time spent from WAITING to RECOVERED",    desc_s="from_wait_to_reco",    unit="hours"),
+            "mean-in-preparation-time":   SampleCollection(desc_l="Mean preparation time based on distribution.", desc_s="mean_prep_time_distr", unit="hours"),
+            "mean-in-operation-time":     SampleCollection(desc_l="Mean operation time based on distribution.",   desc_s="mean_oper_time_distr", unit="hours"),
+            "mean-in-recovery-time":      SampleCollection(desc_l="Mean recovery time based on distribution.",    desc_s="mean_oper_reco_distr", unit="hours"),
+            "usage_of_operation_unit":    SampleCollection(desc_l="Utilization of the operation theater",         desc_s="operation_usage",      unit="%"),
+            "arrival-queue-length":       SampleCollection(desc_l="Patients at the arrival queue",                desc_s="arr_queue_length"),
+            "idle-capacity-preparation":  SampleCollection(desc_l="Idle capacity at prepration",                  desc_s="idle_capacity"),
+            "rate-blocking-operations":   SampleCollection(desc_l="Moving to recovery blocked",                   desc_s="move_reco_blocked",    unit="%"),
+            "all-recovery-units-busy":    SampleCollection(desc_l="All recovery units are busy",                  desc_s="all_reco_busy",        unit="%"),
         }
-
-
 
     def __init__(self):
 
         # Print custom error message if correct path is not provided:
         try:
-            command_line_args = self._parse_command_line_arguments()
+            command_line_args = self.__parse_command_line_arguments()
         except:
             print("Please provide correct path to file containing simulation configuration by '--conf' command line option or use --params command line option to print all supported parameters.")
             sys.exit()
@@ -97,11 +98,11 @@ class Simulation():
 
         
         # Remove default value from patient-types if user provided types exists, otherwise name * to DEFAULT:
-        patient_types = self.__parameters["patient-condition-*"]
-        if len(patient_types) > 1:
-            del patient_types["*"]
+        self.__patient_types = self.__parameters["patient-condition-*"]
+        if len(self.__patient_types) > 1:
+            del self.__patient_types["*"]
         else:
-            patient_types["DEFAULT"] = patient_types.pop("*")
+            self.__patient_types["DEFAULT"] = self.__patient_types.pop("*")
             
         self.__environment = simpy.Environment()
         
@@ -112,7 +113,7 @@ class Simulation():
         
 
         # Initialize statistics:
-        self.__statistics = { **{ "patient-portion-" + k: StatisticScalar(SampleScalarMean, "True portion of {} patients".format(k), "%") for k in patient_types.keys()},  **self.__statistics }
+        self.__statistics = { **{ "patient-portion-" + k: SampleCollection(desc_l="True portion of {} patients".format(k), desc_s="portion_{}".format(k), unit="%") for k in self.__patient_types.keys()},  **self.__statistics }
         Statistics()
         [Statistics.add_statistic(name, stat) for name, stat in self.__statistics.items()]
 
@@ -122,73 +123,87 @@ class Simulation():
             
             print("-" * 150)
             Logger.log(LogLevel.INFO, "Starting simulation round {}.".format(r))
-            # Initialize environment:
-            self.__environment = simpy.Environment()
         
             # Initialize RNG:
             Random(self.__parameters["random-seed"] + r)
             
-            # Add new samples to statistics:
-            [Statistics.add_sample(name) for name in self.__statistics.keys()]
-        
             # Created instances with provided parameters:
-            self.__recovery = RecoveryUnits(simpy.PriorityResource(self.__environment, capacity=self.__parameters["number-of-recovery-units"]))
-            self.__operation = OperationUnits(simpy.PriorityResource(self.__environment, capacity=self.__parameters["number-of-operation-units"]), self.__recovery)
+            self.__recovery =    RecoveryUnits(simpy.PriorityResource(self.__environment, capacity=self.__parameters["number-of-recovery-units"]))
+            self.__operation =   OperationUnits(simpy.PriorityResource(self.__environment, capacity=self.__parameters["number-of-operation-units"]), self.__recovery)
             self.__preparation = PreparationUnits(simpy.PriorityResource(self.__environment, capacity=self.__parameters["number-of-preparation-units"]), self.__operation)
 
             # Create records:
             patient_records = PatientRecords(self.on_patient_status_changed)
 
-            self._waiting_list = []
+            # List to count patients at arrival queue:
+            self.__arrival_queue = []
         
             # Create patient generator:
             patient_generator = PatientGenerator(self.__parameters["patient-interval"], patient_records, {
                                                      PatientStatus.IN_PREPARATION: self.__parameters["base-preparation-time"],
                                                      PatientStatus.IN_OPERATION:   self.__parameters["base-operation-time"],
                                                      PatientStatus.IN_RECOVERY:    self.__parameters["base-recovery-time"]
-                                                  }, patient_types)
+                                                  }, self.__patient_types)
                                               
             # Add monitor process:
-            self.__environment.process(self.__collect_statistics(self.__environment, 1))
+            self.__environment.process(self.__sampler())
 
             # Start simulation (with entry point at patient generator):
             self.__environment.process(patient_generator.run(self.__environment, self.__preparation.enter_phase))
-            self.__environment.run(until=self.__parameters["simulation-time"])
-            
 
-            # Print statistics for current simulation round:
-            print(self.__statistics["mean_time_per_prepare"].get_sample_as_str(r))
-            print(self.__statistics["mean_time_per_operate"].get_sample_as_str(r))
-            print(self.__statistics["mean_time_per_patient"].get_sample_as_str(r))
-            print(self.__statistics["number_of_prepared"].get_sample_as_str(r))
-            print(self.__statistics["number_of_operated"].get_sample_as_str(r))
-            print(self.__statistics["number_of_recovered"].get_sample_as_str(r))
-            print(self.__statistics["number_of_deceased"].get_sample_as_str(r))
-            print(self.__statistics["arrival-queue-length"].get_sample_as_str(r, "Queue length"))
-            print(self.__statistics["idle-capacity-preparation"].get_sample_as_str(r, "Idle capacity"))
-            print(self.__statistics["rate-blocking-operations"].get_sample_as_str(r, "Blocking"))
-            print(self.__statistics["all-recovery-units-busy"].get_sample_as_str(r, "Busy"))
-            print(self.__statistics["patient-generator-interval"].get_sample_as_str(r))
-            print(self.__statistics["total-number-of-patients"].get_sample_as_str(r))
-            [print(self.__statistics[s].get_sample_as_str(r)) for s in ["patient-portion-" + k for k in patient_types.keys()]]
-            
+            # Calculate total simulation time:
+            simulation_time = self.__parameters["sample-warm-up"] + self.__parameters["sample-count"] * (self.__parameters["sample-interval"] + self.__parameters["sample-time"]) - self.__parameters["sample-interval"]
 
+            self.__environment.run(until=simulation_time)
+
+            # Rest environment:
+            self.__environment = simpy.Environment()
 
 
         Logger.log(LogLevel.INFO, "Simulation ended successfully.")
-        print("-" * 150)
+        
+        # Output last five statistics to stdout:
+        print("{}\n{}\n{}".format("-" * 150, Statistics.get_as_string(list(self.__statistics.keys())[-5:]), "-" * 150))
 
-        # Print mean values based on invidual samples:
-        print(self.__statistics["arrival-queue-length"].get_confidence_interval_as_str("Queue length"))
-        print(self.__statistics["idle-capacity-preparation"].get_confidence_interval_as_str("Idle capacity"))
-        print(self.__statistics["rate-blocking-operations"].get_confidence_interval_as_str("Blocking"))
-        print(self.__statistics["all-recovery-units-busy"].get_confidence_interval_as_str("Busy"))
-        print(self.__statistics["usage_of_operation_unit"].get_confidence_interval_as_str("Usage"))
-        print("-" * 150)
+        with (self.__parameters["result-folder"] / "statistics.csv").open('w') as file:
+            file.write(Statistics.get_as_csv(self.__statistics.keys()) + "\n")
 
 
 
-    def _parse_command_line_arguments(self):
+    def __sampler(self):
+        """
+            Sampler method takes care of sampling with specific interval and length.
+            Also writes statistics with resolution to 1 time unit.
+        """
+
+        Logger.log(LogLevel.INFO, "Starting simulation warm-up period.")
+        yield self.__environment.timeout(self.__parameters["sample-warm-up"])
+        Logger.log(LogLevel.INFO, "Warm-up period ended, start taking samples.")
+
+        while True:
+            Statistics.start_sample()
+            Logger.log(LogLevel.INFO, "Start taking new sample.")
+
+            for t in range(self.__parameters["sample-time"]):
+                yield self.__environment.timeout(1)
+                Statistics.update_sample("usage_of_operation_unit",   self.__operation.resources.count / self.__operation.resources.capacity * 100.0)
+                Statistics.update_sample("arrival-queue-length",      len(self.__arrival_queue))
+                Statistics.update_sample("idle-capacity-preparation", self.__preparation.resources.capacity - self.__preparation.resources.count)
+                Statistics.update_sample("all-recovery-units-busy",   100.0 if self.__recovery.resources.capacity == self.__recovery.resources.count else 0)
+            
+            Statistics.end_sample()
+            Logger.log(LogLevel.INFO, "Sample taken.")
+
+            # Output statistics to stdout for current sample:
+            print("{}\n{}\n{}".format("-" * 150, Statistics.get_as_string(self.__statistics.keys(), -1), "-" * 150))
+
+            # Wait until time to get next sample:
+            yield self.__environment.timeout(self.__parameters["sample-interval"])
+
+
+
+
+    def __parse_command_line_arguments(self):
         """
             Parses command line arguments.
         """
@@ -203,34 +218,21 @@ class Simulation():
 
 
 
-    def __collect_statistics(self, env, interval):
-        """
-            Monitor process.
-        """
-        while True:
-            yield env.timeout(interval)
-            Statistics.update_sample("usage_of_operation_unit",   [env.now, self.__operation.resources.count / self.__operation.resources.capacity * 100.0])
-            Statistics.update_sample("length_entrance_queue",     [env.now, len(self._waiting_list)])
-            Statistics.update_sample("arrival-queue-length",      [env.now, len(self._waiting_list)])
-            Statistics.update_sample("idle-capacity-preparation", [env.now, self.__preparation.resources.capacity - self.__preparation.resources.count])
-            Statistics.update_sample("all-recovery-units-busy",   [env.now, 100 if self.__recovery.resources.capacity == self.__recovery.resources.count else 0])
-        
-
     def on_patient_status_changed(self, status, patient, time_stamp):
         """
             Callback to collect statistics when patient status is changed.
         """
 
         if status == PatientStatus.WAITING:
-            self._waiting_list.append(patient)
+            self.__arrival_queue.append(patient)
         elif status == PatientStatus.IN_PREPARATION:
-            self._waiting_list.remove(patient)
+            self.__arrival_queue.remove(patient)
         elif status == PatientStatus.PREPARED:
             Statistics.update_sample("number_of_prepared")
         elif status == PatientStatus.OPERATED:
             Statistics.update_sample("number_of_operated")
             #StatisticsCollection.update_statistic("rate-blocking-operations", [time_stamp,  1 if self.__recovery.resources.capacity == self.__recovery.resources.count  else 0])
-            Statistics.update_sample("rate-blocking-operations", [time_stamp, 100 if self.__recovery.resources.capacity == self.__recovery.resources.count  else 0])
+            Statistics.update_sample("rate-blocking-operations", 100.0 if self.__recovery.resources.capacity == self.__recovery.resources.count  else 0)
         elif status == PatientStatus.RECOVERED:
             Statistics.update_sample("mean_time_per_prepare", patient.time_stamps[PatientStatus.PREPARED] - patient.time_stamps[PatientStatus.WAITING])
             Statistics.update_sample("mean_time_per_operate", patient.time_stamps[PatientStatus.OPERATED] - patient.time_stamps[PatientStatus.PREPARED])
