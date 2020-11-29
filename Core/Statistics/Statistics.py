@@ -114,7 +114,7 @@ class SampleCollection():
             Calculates variance for samples.
         """
         mean = self.get_mean();
-        return sum([((s.get_value() / s.get_count()) - mean)**2 for s in self.__samples]) / len(self.__samples - 1)
+        return sum([((s.get_value() / s.get_count()) - mean)**2 for s in self.__samples]) / (len(self.__samples) - 1)
 
 
     def get_standard_deviation(self):
