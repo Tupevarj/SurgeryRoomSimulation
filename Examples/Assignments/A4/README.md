@@ -20,3 +20,7 @@ Chart showing correlation presented below is from **correlation** excel sheet, w
 The results show that with higher interval (>= 8000 time units) between invidual samples, correlation between the samples is negligible.
 
 **Note: 20 samples were taken for each simulation run, also Unif(40,50) was used for recovery units.**
+
+## Regression model:
+
+Based on correlation analysis, sampling interval 10000 was used.
