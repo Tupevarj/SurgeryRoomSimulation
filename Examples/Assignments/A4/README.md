@@ -13,7 +13,7 @@ To analyze serial correlation between the samples, scenario with following param
 - Length of a invidual sample was 1000 time units.
 - Different sampling intervals: 0, 100, 200, 300, 400, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000 time units.
 
-Chart showing correlation presented below is from **correlation** excel sheet, where full calculations can be found. 
+Chart showing correlation presented below is from [correlation](correlation.xlsx) excel sheet, where full calculations can be found. 
 
 ![Correlation](./correlation.png)
 
