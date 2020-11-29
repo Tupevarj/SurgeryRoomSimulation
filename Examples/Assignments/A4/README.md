@@ -1,6 +1,6 @@
 # Assignment 4
 
-## Serial correlation:
+## Serial correlation
 
 To analyze serial correlation between the samples, scenario with following parameters was used:  
 - Patient generation was based on exponential distribution and mean of 25 time units.
@@ -21,6 +21,6 @@ The results show that with higher interval (>= 8000 time units) between invidual
 
 **Note: 20 samples were taken for each simulation run, also Unif(40,50) was used for recovery units.**
 
-## Regression model:
+## Regression model
 
 Based on correlation analysis, sampling interval 10000 was used.
