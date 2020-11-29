@@ -29,7 +29,7 @@ python main.py --params
 Example configuration file is included in the **Examples** folder.
 Example usage:
 ```
-python main.py --conf Examples\configuration.txt
+python main.py --conf Examples\example-configuration.txt
 ```
 
 ## Requirements
@@ -51,6 +51,7 @@ pip install simpy
 Generated patients can have different conditions. Patient condition determines the urgency (priorization), risk to die during or before operation and custom service times for each phase. Different conditions and proportions of total generated number of patients can be changed in configuration file.
 
 
-## Assignment 3 results
+## Assignments
 
-**Will be available soon in Examples/Results folder...**
+Assignment 3 results are available in Exmples/Assignments/A3 folder.\
+**Assignment 4 results will be available soon in Examples/Assignments/A4 folder...**
