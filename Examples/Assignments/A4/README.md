@@ -18,6 +18,6 @@ Length of a invidual sample was 1000 time units.
 
 Results for correlation are in **pairwise_comparison** excel sheet.
 
-![Correlation](/correlation.png)
+![Correlation](./correlation.png)
 
 **Note: 20 samples were taken for each simulation run, also Unif(40,50) was used for recovery units.**
