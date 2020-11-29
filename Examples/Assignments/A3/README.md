@@ -1,6 +1,6 @@
 # Assignment 3
 
-## Point estimates with condidence levels:
+## Point estimates with condidence levels
 
 ### Scenario 1 (3 preparation, 4 recovery):
 ```
