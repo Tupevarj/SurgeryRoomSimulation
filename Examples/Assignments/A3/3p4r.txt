@@ -1,0 +1,30 @@
+#--------------------------------------------------------------------------------------------------------------------
+#	Common parameters
+#--------------------------------------------------------------------------------------------------------------------
+log-level: INFO 				# Only messages with log level INFO or higher are output.
+log-out: LOG_BOTH				# Logs to stdout and log.log file.
+result-folder: Examples/Assignments/A3		# Folder where results are stored (absolute or relative to current).
+patient-interval: ["EXPONENTIAL", 25]		# Exponential distribution, 25 time units mean interval for patients.
+random-seed: 3					# Common random seed.
+
+#--------------------------------------------------------------------------------------------------------------------
+#	Number of units in each phase
+#--------------------------------------------------------------------------------------------------------------------
+number-of-operation-units: 1			# 1 operation unit.
+number-of-preparation-units: 3			# 3 prepartion units.
+number-of-recovery-units: 4			# 4 recovery units.
+
+#--------------------------------------------------------------------------------------------------------------------
+#	Base service times
+#--------------------------------------------------------------------------------------------------------------------
+base-preparation-time: ["EXPONENTIAL", 40]	# Exponential distribution, 40 time units mean.
+base-operation-time: ["EXPONENTIAL", 20]	# Exponential distribution, 20 time units mean.
+base-recovery-time: ["EXPONENTIAL", 40]		# Exponential distribution, 40 time units mean.
+
+#--------------------------------------------------------------------------------------------------------------------
+#	Sampling
+#--------------------------------------------------------------------------------------------------------------------
+sample-count: 20				# Take 20 samples total.
+sample-interval: 1000				# Sample length.
+sample-time: 1000				# Run 1000 time units between samples.
+sample-warm-up: 1000				# Run 1000 time units before first sample is taken.
