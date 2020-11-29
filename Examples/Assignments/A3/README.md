@@ -50,7 +50,7 @@ other scenarios. Also in the third scenario idle capcity of prepation units has 
 
 ## Difference between scenarios
 
-Results for difference between scenarios presented below are based on calculations carried in **pairwise_comparison** excel sheet.
+Results for difference between scenarios presented below are based on calculations carried in [pairwise_comparison](pairwise_comparison.xlsx)**** excel sheet.
 
 ### Scenario 1 (3 preparation, 4 recovery) vs scenario 2 (3 preparation, 5 recovery):
 
