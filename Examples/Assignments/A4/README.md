@@ -20,11 +20,11 @@ Correlation analysis was divided into two experiments:
   - Length of a invidual sample: 100, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2500 time units. 
 
 ### Results
-Chart showing correlation presented below is from [correlation](covariances.xlsx) excel sheet, where full calculations can be found. 
+Chart showing correlation presented below is from [covariances](covariances.xlsx) excel sheet, where full calculations can be found. 
 
 ![Correlation](./correlation_sample_interval.png)
 
-Chart showing correlation presented below is from [correlation](covariances-length.xlsx) excel sheet, where full calculations can be found. 
+Chart showing correlation presented below is from [covariances-lenght](covariances-length.xlsx) excel sheet, where full calculations can be found. 
 ![Correlation](./correlation_sample_length.png)
 
 The results show that with higher interval (>= 8000 time units) between invidual samples, correlation between the samples is negligible. In addition to interval between the samples, sample length affects the correlation as smaller sample lengths shows higher correlation between the samples.
