@@ -90,10 +90,10 @@ class SampleCollection():
     
 
     def get_value(self, sample):
-        return 0 if self.__samples[sample].get_count() == 0 else self.__samples[sample].get_value() / self.__samples[sample].get_count()
+        return float('nan') if self.__samples[sample].get_count() == 0 else self.__samples[sample].get_value() / self.__samples[sample].get_count()
 
     def get_values(self):
-        return [s.get_value() / s.get_count() for s in self.__samples]
+        return [float('nan') if s.get_count() == 0 else s.get_value() / s.get_count() for s in self.__samples]
 
     def get_sum(self):
         """
