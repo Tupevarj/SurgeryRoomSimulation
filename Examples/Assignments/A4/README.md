@@ -153,7 +153,7 @@ Regression analysis results:
 |          F | -0,551818699   | 0,410515766 |
 
 The linear regression model doesn't explain the results well. Errors are even higher than without personal twist.
-**This was assumed as our personel twist does affect other parameters**; it does affect preparation and recovery
+**This was expected as our personel twist does affect other parameters**; it does affect preparation and recovery
 times which are distinct parameters used in regression model. To better undestand the effect of personal twist,
 personal twist should be divided into multiple parameters (base service time multipliers, proportion of conditions, etc..).
 
