@@ -111,7 +111,7 @@ In configuration file, patient conditions are defined as:
 patient-condition-MILD:     [1, 0.9, 0.0, [1.0, 1.0, 1.0]]
 patient-condition-CRITICAL: [0, 0.1, 0.2, [0.6, 1.2, 1.6]]
 ```
-Design matrix:
+Number of preparation units was 4.
 
 The following experiment design was used:
 
