@@ -33,7 +33,7 @@ python main.py --conf Examples\example-configuration.txt
 ```
 
 ## Requirements
-Python >= 3.6\
+Python >= 3.6  
 SimPy
 
 To install SimPy, use pip:
@@ -53,5 +53,5 @@ Generated patients can have different conditions. Patient condition determines t
 
 ## Assignments
 
-Assignment 3 results are available in Exmples\Assignments\A3 folder.\
-**Assignment 4 results will be available soon in Examples\Assignments\A4 folder...**
+Assignment 3 results are available in Exmples\Assignments\A3 folder.  
+Assignment 4 results are available in Examples\Assignments\A4 folder.
