@@ -16,7 +16,7 @@ Correlation analysis was divided into two experiments:
   - Length of a invidual sample was 1000 time units.
   - Sampling intervals: 0, 100, 200, 300, 400, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000 time units.
 - Experiment with fixed sampling interval and different sample lengths:
-  - Sampling interval was 5000
+  - Sampling interval was 5000.
   - Length of a invidual sample: 100, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2500 time units. 
 
 ### Results
