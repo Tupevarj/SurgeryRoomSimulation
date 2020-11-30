@@ -58,9 +58,8 @@ patient-condition-CRITICAL: [0, 0.1, 0.2, [0.6, 1.2, 1.6]]
 ```
 Design matrix:
 
-| 1 | Arr  | Arr  | Prep | Reco | Prep | Cond  |
-|   | dist | mean | time | time | num  | ition |
-|:-:|:----:|:----:|:----:|:----:|:----:|:-----:|
+| 1 | Arr dist  | Arr mean  | Prep time | Reco time | Prep num | Condition  |
+|:-:|:---------:|:---------:|:---------:|:---------:|:--------:|:----------:|
 | 1 |  1   |  1   |  1   |  1   |  1   |   1   |
 | 1 | -1   | -1   | -1   |  1   |  1   |   1   |
 | 1 | -1   |  1   |  1   | -1   | -1   |   1   |
