@@ -152,6 +152,21 @@ Regression analysis results:
 |          E |  0,327845914   | 0,574363711 |
 |          F | -0,551818699   | 0,410515766 |
 
+The linear regression model doesn't explain the results well. Errors are even higher than without personal twist.
+**This was assumed as our personel twist does affect other parameters**; it does affect preparation and recovery
+times which are distinct parameters used in regression model. To better undestand the effect of personal twist,
+personal twist should be divided into multiple parameters (base service time multipliers, proportion of conditions, etc..).
+
+|experiment | Average queue length | Predicted| Error     |
+|:---------:|:--------------------:|:--------:|:-----------:|
+|         1 | 0,080960040          | 0,4959767530 | -0,415016712 |
+|         2 | 1,961315575          |-2,0244062124 |  3,985721788 |
+|         3 | 0,669133543          |-0,9900967129 |  1,659230256 |
+|         4 | 0,214430750          | 1,6226350312 | -1,408204280 |
+|         5 | 1,799645685          | 1,1819283821 |  0,617717303 |
+|         6 | 2,602577067          |-2,0134460598 |  4,616023126 |
+|         7 | 0,575080000          |-2,3124405242 |  2,887520524 |
+|         8 | 2,363086756          |-0,3747002565 |  2,737787013 |
 
 
 
