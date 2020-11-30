@@ -33,7 +33,61 @@ The results show that with higher interval (≥8000 time units) between invidual
 
 ## Regression model
 
-Based on correlation analysis, sampling interval 10000 was used.
+Based on correlation analysis, sampling interval 10000 was used. Sample length was 1000 units.
+
+### Experiment design
+
+The following experiment design was used:
+
+Run |  A |  B |  C |  D | E  |  F |
+----|----|----|----|----|----|----|
+ 1  | +1 | +1 | +1 | +1 | +1 | +1 |
+ 2  | -1 | -1 | -1 | +1 | +1 | +1 |
+ 3  | -1 | +1 | +1 | -1 | -1 | +1 |
+ 4  | +1 | -1 | -1 | -1 | -1 | +1 |
+ 5  | +1 | -1 | +1 | -1 | +1 | -1 |
+ 6  | -1 | +1 | -1 | -1 | +1 | -1 |
+ 7  | -1 | -1 | +1 | +1 | -1 | -1 |
+ 8  | +1 | +1 | -1 | +1 | -1 | -1 |
+
+Which translated to the cofigurations and results:
+
+experiment | Distr | Rate    | Prep time   | Rec Time    | Nprep | Nrec | Average queue length | Variance    |
+---------- | ----- | ------- | ----------- | ----------- | ----- | ---- | -------------------- | ----------- |
+         1 | exp   | 25      | exp(40)     | exp(40)     | 5     | 5    | 0,088090611          | 0,024595261 |
+         2 | unif  | (20,25) | Unif(30,50) | exp(40)     | 5     | 5    | 1,137240901          | 9,820077854 |
+         3 | unif  | (20,3)  | exp(40)     | Unif(30,50) | 4     | 5    | 0,537050571          | 2,235847939 |
+         4 | exp   | 22,5    | Unif(30,50) | Unif(30,50) | 4     | 5    | 0,070490611          | 0,007657008 |
+         5 | exp   | 22,5    | exp(40)     | Unif(30,50) | 5     | 4    | 0,379364855          | 0,284393736 |
+         6 | unif  | (20,3)  | Unif(30,50) | Unif(30,50) | 5     | 4    | 0,13378              | 0,438886436 |
+         7 | unif  | (20,25) | exp(40)     | exp(40)     | 4     | 4    | 3,705415606          | 26,78830475 |
+         8 | exp   | 25      | Unif(30,50) | exp(40)     | 4     | 4    | 0,02625002           | 0,000995825 |
+
+Regression analysis results:
+
+|            |   Coefficients | P-value     |
+|----------- | -------------- | ----------- |
+   Intercept |  0,759710397   | 0,194595382 |
+           A | -0,618661373   | 0,23535059  |
+           B | -0,563417596   | 0,256108002 |
+           C |  0,417770014   | 0,331655518 |
+           D |  0,479538888   | 0,295129389 |
+           E | -0,325091305   | 0,404515268 |
+           F | -0,301492223   | 0,427669214 |
+
+The linear regression model (M1) doesn't explain the results well, but the errors are much smaller, if  the least
+significant factor F is dropped from the model (M2).
+
+experiment | Average queue length | M1 predicted| M1 error     | M2 predicted | M2 error     |
+---------- | -------------------- | ----------- | ------------ |------------- | ------------ |
+         1 | 0,088090611          | 0,467018173 |  0,378927563 |  0,149849024 |  0,061758413 |
+         2 | 1,137240901          |-0,200764437 | -1,338005338 |  1,678466934 |  0,541226034 |
+         3 | 0,537050571          | 2,847020423 |  2,309969852 |  1,078276604 |  0,541226034 |
+         4 | 0,070490611          |-0,074432573 | -0,144923183 |  0,132249024 |  0,061758413 |
+         5 | 0,379364855          | 0,281660756 | -0,097704099 |  0,317606441 | -0,061758413 |
+         6 | 0,13378              | 1,284958201 |  1,151178201 | -0,407446034 | -0,541226034 |
+         7 | 3,705415606          | 1,361297785 | -2,34411782  |  3,164189572 | -0,541226034 |
+         8 | 0,02625002           | 0,110924845 |  0,084674825 | -0,035508393 | -0,061758413 |
 
 ### Personal twist
 
