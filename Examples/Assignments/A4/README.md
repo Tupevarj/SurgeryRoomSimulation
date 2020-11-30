@@ -15,7 +15,7 @@ To analyze serial correlation between the samples, scenario with following param
 
 Chart showing correlation presented below is from [correlation](covariances.xlsx) excel sheet, where full calculations can be found. 
 
-![Correlation](./correlation.png)
+![Correlation](./correlation_sample_interval.png)
 
 The results show that with higher interval (>= 8000 time units) between invidual samples, correlation between the samples is negligible.
 
