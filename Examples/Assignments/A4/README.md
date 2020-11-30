@@ -34,3 +34,25 @@ The results show that with higher interval (>= 8000 time units) between invidual
 ## Regression model
 
 Based on correlation analysis, sampling interval 10000 was used.
+
+### Personal twist
+
+To analyze the effect of personal twist, following parameters where used to add personal twist:
+- Patients with two conditions:
+  - MILD condition
+  - CRITICAL condition
+- From the total number of generated patients 90 % are in MILD condition and 10 % in CRITICAL condition.
+- Patients in CRITICAL condition has higher priorization in queues.
+- Patients in CRITICAL condition has 20 % to die during prepration or operation.
+  - This is true in ideal situtation where patient is not waiting to get preparaton or operation.
+  - Probability to die before or during operation is dependent on total time elapsed; with 20% patient has 100% probability to die if patient is waiting more than four times the total time it takes in ideal conditions patient to be operated.
+- Patient in CRITICAL condition has different service time multipliers:
+  - Preparation time multiplier is 0.6.
+  - Operation time multiplier is 1.2.
+  - Recovery time multiplier is 1.6.
+  
+In configuration file, patient conditions are defined as:
+```
+patient-condition-MILD:     [1, 0.9, 0.0, [1.0, 1.0, 1.0]]
+patient-condition-CRITICAL: [0, 0.1, 0.2, [0.6, 1.2, 1.6]]
+```
