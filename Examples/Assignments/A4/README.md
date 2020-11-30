@@ -27,7 +27,7 @@ Chart showing correlation presented below is from [covariances](covariances.xlsx
 Chart showing correlation presented below is from [covariances_length](covariances-length.xlsx) excel sheet, where full calculations can be found. 
 ![Correlation](./correlation_sample_length.png)
 
-The results show that with higher interval (>= 8000 time units) between invidual samples, correlation between the samples is negligible. In addition to interval between the samples, sample length affects the correlation as smaller sample lengths shows higher correlation between the samples.
+The results show that with higher interval (≥8000 time units) between invidual samples, correlation between the samples is negligible. In addition to interval between the samples, sample length affects the correlation as smaller sample lengths shows higher correlation between the samples.
 
 **Note: 20 samples were taken for each simulation run, also Unif(40,50) was used for recovery units.**
 
