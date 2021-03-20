@@ -53,6 +53,6 @@ Generated patients can have different conditions. Patient condition determines t
 ## Assignment
 
 Assignment 3 results are available in Examples\Assignments\A3 folder..  
-Assignment 4 results are available in Examples\Assignments\A4 folder.
+Assignment 4 results are available in Examples\Assignments\A4 folder..
 
 ...
